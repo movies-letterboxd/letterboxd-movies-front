@@ -5,6 +5,7 @@ import MoviePage from './pages/MoviePage.tsx'
 import NewMoviePage from './pages/NewMoviePage.tsx'
 import { Navigate } from 'react-router'
 import Layout from './components/Layout.tsx'
+import './tailwind-input.css'
 
 createRoot(document.getElementById('root')!).render(
   <BrowserRouter>
