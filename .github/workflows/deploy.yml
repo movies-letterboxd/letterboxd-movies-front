@@ -19,29 +19,26 @@ jobs:
 
     env:
       AWS_REGION: us-east-2
-      S3_BUCKET: movies-letterbox         # <-- tu bucket
-      CF_DIST_ID: E1COKQVBIR9BQY          # <-- tu distribución (la que ya usaste)
+      S3_BUCKET: movies-letterbox          # <-- tu bucket
+      CF_DIST_ID: E1COKQVBIR9BQY           # <-- tu distribución
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node (with pnpm cache)
+      - name: Setup Node (habilita cache p/ pnpm-lock.yaml)
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: pnpm
           cache-dependency-path: pnpm-lock.yaml
 
-      # 👇 Soluciona el "pnpm not found": instalamos pnpm en el runner
-      - name: Install pnpm
-        run: npm i -g pnpm@9
+      # 👇 sin depender de que pnpm esté instalado en el runner
+      - name: Install deps (pnpm vía npx)
+        run: npx -y pnpm@9 install --frozen-lockfile
 
-      - name: Install deps
-        run: pnpm install --frozen-lockfile
-
-      - name: Build
-        run: pnpm run build
+      - name: Build (pnpm vía npx)
+        run: npx -y pnpm@9 run build
 
       - name: Configure AWS (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
