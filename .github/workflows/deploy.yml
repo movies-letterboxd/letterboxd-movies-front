@@ -3,37 +3,49 @@ name: Deploy Frontend
 on:
   push:
     branches:
-      - main   # 👈 acá definís la rama que dispara el action
+      - main
       - deploy-front
 
 permissions:
-  id-token: write   # necesario para OIDC
+  id-token: write   # OIDC
   contents: read
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    concurrency:
+      group: deploy-front
+      cancel-in-progress: true
+
+    env:
+      AWS_REGION: us-east-2
+      S3_BUCKET: movies-letterbox
+      CF_DIST_ID: E1COKQVBIR9BQY
+
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Configure AWS credentials from IAM Role
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Build
+        run: npm run build 
+
+      - name: Configure AWS (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::277707101441:role/Movies-letterbox-Front
-          aws-region: us-east-2
+          aws-region: ${{ env.AWS_REGION }}
 
-      - name: Build project
-        run: |
-          npm install
-          npm run build
+      - name: Deploy to S3 (CLI)
+        run: aws s3 sync ./build s3://${{ env.S3_BUCKET }} --delete
 
-      - name: Deploy to S3
-        uses: aws-actions/s3-sync@v2
-        with:
-          bucket: mi-bucket
-          region: us-east-2
-          source-dir: ./build
-
-      - name: Invalidate CloudFront cache
-        run: aws cloudfront create-invalidation --distribution-id E1COKQVBIR9BQY --paths "/*"
+      - name: Invalidate CloudFront
+        run: aws cloudfront create-invalidation --distribution-id ${{ env.CF_DIST_ID }} --paths "/*"
