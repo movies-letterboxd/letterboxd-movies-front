@@ -20,23 +20,25 @@ jobs:
     env:
       AWS_REGION: us-east-2
       S3_BUCKET: movies-letterbox          
-      CF_DIST_ID: E1COKQVBIR9BQY            
+      CF_DIST_ID: E1COKQVBIR9BQY           
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node + pnpm
+      # Instala Node 20 y habilita cache para pnpm usando pnpm-lock.yaml
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'pnpm'
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
 
-      - name: Enable corepack
-        run: corepack enable
-
-      - name: Use pnpm
-        run: corepack prepare pnpm@9.0.0 --activate
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+          run_install: false
 
       - name: Install deps
         run: pnpm install --frozen-lockfile
@@ -50,10 +52,13 @@ jobs:
           role-to-assume: arn:aws:iam::277707101441:role/Movies-letterbox-Front
           aws-region: ${{ env.AWS_REGION }}
 
+      # Detecta automáticamente si el output está en ./dist (Vite) o ./build (CRA)
       - name: Deploy to S3 (CLI)
-        run: aws s3 sync ./build s3://${{ env.S3_BUCKET }} --delete
+        run: |
+          OUTDIR="./dist"
+          if [ ! -d "$OUTDIR" ]; then OUTDIR="./build"; fi
+          echo "Deploying from $OUTDIR"
+          aws s3 sync "$OUTDIR" "s3://${{ env.S3_BUCKET }}" --delete
 
       - name: Invalidate CloudFront
-        run: aws cloudfront create-invalidation \
-              --distribution-id ${{ env.CF_DIST_ID }} \
-              --paths "/*"
+        run: aws cloudfront create-invalidation --distribution-id ${{ env.CF_DIST_ID }} --paths "/*"
