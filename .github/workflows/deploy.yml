@@ -1,0 +1,39 @@
+name: Deploy Frontend
+
+on:
+  push:
+    branches:
+      - main   # 👈 acá definís la rama que dispara el action
+      - deploy-front
+
+permissions:
+  id-token: write   # necesario para OIDC
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials from IAM Role
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::277707101441:role/Movies-letterbox-Front
+          aws-region: us-east-2
+
+      - name: Build project
+        run: |
+          npm install
+          npm run build
+
+      - name: Deploy to S3
+        uses: aws-actions/s3-sync@v2
+        with:
+          bucket: mi-bucket
+          region: us-east-2
+          source-dir: ./build
+
+      - name: Invalidate CloudFront cache
+        run: aws cloudfront create-invalidation --distribution-id E1COKQVBIR9BQY --paths "/*"
