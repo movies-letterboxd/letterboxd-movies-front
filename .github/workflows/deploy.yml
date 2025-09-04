@@ -19,26 +19,23 @@ jobs:
 
     env:
       AWS_REGION: us-east-2
-      S3_BUCKET: movies-letterbox          
-      CF_DIST_ID: E1COKQVBIR9BQY           
+      S3_BUCKET: movies-letterbox         # <-- tu bucket
+      CF_DIST_ID: E1COKQVBIR9BQY          # <-- tu distribución (la que ya usaste)
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Instala Node 20 y habilita cache para pnpm usando pnpm-lock.yaml
-      - name: Setup Node
+      - name: Setup Node (with pnpm cache)
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: pnpm
           cache-dependency-path: pnpm-lock.yaml
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9
-          run_install: false
+      # 👇 Soluciona el "pnpm not found": instalamos pnpm en el runner
+      - name: Install pnpm
+        run: npm i -g pnpm@9
 
       - name: Install deps
         run: pnpm install --frozen-lockfile
@@ -52,13 +49,8 @@ jobs:
           role-to-assume: arn:aws:iam::277707101441:role/Movies-letterbox-Front
           aws-region: ${{ env.AWS_REGION }}
 
-      # Detecta automáticamente si el output está en ./dist (Vite) o ./build (CRA)
       - name: Deploy to S3 (CLI)
-        run: |
-          OUTDIR="./dist"
-          if [ ! -d "$OUTDIR" ]; then OUTDIR="./build"; fi
-          echo "Deploying from $OUTDIR"
-          aws s3 sync "$OUTDIR" "s3://${{ env.S3_BUCKET }}" --delete
+        run: aws s3 sync ./dist s3://${{ env.S3_BUCKET }} --delete
 
       - name: Invalidate CloudFront
         run: aws cloudfront create-invalidation --distribution-id ${{ env.CF_DIST_ID }} --paths "/*"
