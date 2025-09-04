@@ -19,26 +19,35 @@ jobs:
 
     env:
       AWS_REGION: us-east-2
-      S3_BUCKET: movies-letterbox          # <-- tu bucket
-      CF_DIST_ID: E1COKQVBIR9BQY           # <-- tu distribución
+      S3_BUCKET: movies-letterbox
+      CF_DIST_ID: E1COKQVBIR9BQY
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node (habilita cache p/ pnpm-lock.yaml)
+      # 1) Instala pnpm para que exista en PATH ANTES de usar cache: pnpm
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+          run_install: false
+
+      # 2) Ahora sí, Node con cache para pnpm (ya existe el binario)
+      - name: Setup Node (con cache pnpm)
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: pnpm
           cache-dependency-path: pnpm-lock.yaml
 
-      # 👇 sin depender de que pnpm esté instalado en el runner
-      - name: Install deps (pnpm vía npx)
-        run: npx -y pnpm@9 install --frozen-lockfile
+      - run: pnpm -v
 
-      - name: Build (pnpm vía npx)
-        run: npx -y pnpm@9 run build
+      - name: Install deps
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm run build   # Vite -> dist/
 
       - name: Configure AWS (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
