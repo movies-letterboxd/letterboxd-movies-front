@@ -1,1 +1,32 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
 @import "tailwindcss";
+
+@layer base {
+  html {
+    font-family: 'Montserrat', sans-serif;
+  }
+}
+
+.logo {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #0f1d2b;
+  gap: 6px;
+  padding: 10px;
+}
+
+.triangle {
+  width: 0;
+  height: 0;
+  border-top: 16.5px solid transparent;
+  border-bottom: 16.5px solid transparent;
+}
+
+.triangle.left {
+  border-right: 37px solid #ff214d;
+}
+
+.triangle.right {
+  border-left: 37px solid #19d7cc;
+}

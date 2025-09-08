@@ -1,0 +1,87 @@
+import { useNavigate } from "react-router"
+import type { Movie } from "../../types/Movie"
+import formatDate from "../../utils/formatDate"
+import formatMinutes from "../../utils/formatMinutes"
+import ActiveBadge from "./ActiveBadge"
+import DirectorChip from "./DirectorChip"
+import GenreBadge from "./GenreBadge"
+import Pill from "./Pill"
+import PlatformBadge from "./PlatformBadge"
+
+interface Props {
+  movie: Movie
+}
+
+export default function MovieCard({ movie }: Props) {
+  const navigate = useNavigate()
+
+  const handleMovieClick = () => {
+    navigate(`/movies/${movie.id}`)
+  }
+
+  return (
+    <article
+      onClick={handleMovieClick}
+      className="group relative cursor-pointer flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-b from-white/5 to-transparent p-2 shadow-[0_8px_40px_-12px_rgba(0,0,0,0.6)] transition hover:scale-[1.01] hover:border-white/20"
+      aria-label={`Película: ${movie.titulo}`}
+    >
+      <div className="relative">
+        <div className="relative overflow-hidden rounded-xl">
+          <img
+            src={movie.poster}
+            alt={`Poster de ${movie.titulo}`}
+            loading="lazy"
+            onError={(e) => {
+              (e.currentTarget as HTMLImageElement).src = "https://placehold.co/500x750?text=Poster"
+            }}
+            className="aspect-[2/3] w-full object-cover transition duration-300 group-hover:scale-[1.03]"
+          />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+          <div className="absolute bottom-2 left-2 flex flex-wrap items-center gap-2">
+            <ActiveBadge active={movie.activa} />
+            <Pill className="bg-black/50 text-white/80 border border-white/10">{formatMinutes(movie.duracionMinutos)}</Pill>
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-3 grid gap-3">
+        <header className="flex items-start justify-between gap-2">
+          <h2 className="line-clamp-2 text-balance text-lg font-semibold text-white">{movie.titulo}</h2>
+          <Pill className="shrink-0 bg-white/5 text-white/60 border border-white/10" title="Fecha de estreno">
+            {formatDate(movie.fechaEstreno)}
+          </Pill>
+        </header>
+
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-white/50">Dirección:</span>
+          <DirectorChip nombre={movie.director.nombre} imagen={movie.director.imagen} />
+        </div>
+
+        <div className="flex flex-wrap gap-1.5">
+          {movie.generos.slice(0, 4).map((g) => (
+            <GenreBadge key={g.id} label={g.nombre} />
+          ))}
+        </div>
+
+        <p className="line-clamp-3 text-sm leading-relaxed text-white/80">{movie.sinopsis}</p>
+
+        {movie.plataformas.length > 0 && (
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-xs text-white/50">Disponible en:</span>
+            <div className="flex flex-wrap gap-1.5">
+              {movie.plataformas.slice(0, 4).map((p) => (
+                <PlatformBadge key={p.id} name={p.nombre} logoUrl={p.logoUrl} />
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      <button
+        className="absolute inset-0 -z-10"
+        aria-hidden
+        tabIndex={-1}
+      />
+    </article>
+  )
+}
