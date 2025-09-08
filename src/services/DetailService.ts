@@ -1,5 +1,5 @@
 import apiClient from "./apiClient";
-import { Movie } from "../types/Movie"; // Adjust the path if your Movie type is elsewhere
+import { type Movie } from "../types/Movie"; 
 
 export const agregarAVistos = async (movie: Movie) => {
 try {
@@ -14,7 +14,7 @@ try {
         }
     );
     if (response.status === 200) {
-        console.log(`Película "${movie.title}" marcada como vista.`);
+        console.log(`Película "${movie.titulo}" marcada como vista.`);
         return { success: true, data: response.data };
     } else {
         console.error('Error al marcar como vista:', response.statusText);
@@ -39,7 +39,7 @@ export const agregarAFavoritos = async (movie: Movie) => {
             }
         );
         if (response.status === 200) {
-            console.log(`Película "${movie.title}" agregada a favoritos.`);
+            console.log(`Película "${movie.titulo}" agregada a favoritos.`);
             return { success: true, data: response.data };
         } else {
             console.error('Error al agregar a favoritos:', response.statusText);
@@ -47,6 +47,21 @@ export const agregarAFavoritos = async (movie: Movie) => {
         }
     } catch (error: any) {
         console.error('Error al agregar a favoritos:', error.message);
+        return { success: false, error: error.message };
+    }
+}
+
+export const getPeliculaPorId = async (id: number) => {
+    try {
+        const response = await apiClient.get(`/movies/${id}`);
+        if (response.status === 200) {
+            return { success: true, data: response.data };
+        } else {
+            console.error('Error al obtener película por ID:', response.statusText);
+            return { success: false, error: response.statusText };
+        }
+    } catch (error: any) {
+        console.error('Error al obtener película por ID:', error.message);
         return { success: false, error: error.message };
     }
 }
