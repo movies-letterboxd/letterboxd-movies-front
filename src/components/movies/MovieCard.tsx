@@ -7,6 +7,8 @@ import DirectorChip from "./DirectorChip"
 import GenreBadge from "./GenreBadge"
 import Pill from "./Pill"
 import PlatformBadge from "./PlatformBadge"
+import { useState } from "react"
+import ConfirmDialog from "../ui/ConfirmDialog"
 
 interface Props {
   movie: Movie
@@ -14,9 +16,33 @@ interface Props {
 
 export default function MovieCard({ movie }: Props) {
   const navigate = useNavigate()
+  const isAdmin = true
+  const [openConfirm, setOpenConfirm] = useState(false)
+  const [deleting, setDeleting] = useState(false)
 
-  const handleMovieClick = () => {
+  const handleMovieClick = (e: React.MouseEvent) => {
+    if (openConfirm || deleting) {
+      e.preventDefault()
+      e.stopPropagation()
+      return
+    }
     navigate(`/movies/${movie.id}`)
+  }
+
+  const handleDeleteClick = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setOpenConfirm(true)
+  }
+
+  const handleConfirmDelete = async () => {
+    try {
+      setDeleting(true)
+      console.log("Eliminar película", movie.id)
+      setOpenConfirm(false)
+    } finally {
+      setDeleting(false)
+    }
   }
 
   return (
@@ -25,6 +51,18 @@ export default function MovieCard({ movie }: Props) {
       className="group relative cursor-pointer flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-b from-white/5 to-transparent p-2 shadow-[0_8px_40px_-12px_rgba(0,0,0,0.6)] transition hover:scale-[1.01] hover:border-white/20"
       aria-label={`Película: ${movie.titulo}`}
     >
+      {isAdmin && (
+        <div className="absolute right-2 top-2 z-20">
+          <button
+            type="button"
+            onClick={handleDeleteClick}
+            className="rounded-md bg-red-600/90 px-3 py-1.5 text-sm font-medium text-white shadow hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400"
+          >
+            Eliminar
+          </button>
+        </div>
+      )}
+
       <div className="relative">
         <div className="relative overflow-hidden rounded-xl">
           <img
@@ -39,15 +77,22 @@ export default function MovieCard({ movie }: Props) {
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
           <div className="absolute bottom-2 left-2 flex flex-wrap items-center gap-2">
             <ActiveBadge active={movie.activa} />
-            <Pill className="bg-black/50 text-white/80 border border-white/10">{formatMinutes(movie.duracionMinutos)}</Pill>
+            <Pill className="bg-black/50 text-white/80 border border-white/10">
+              {formatMinutes(movie.duracionMinutos)}
+            </Pill>
           </div>
         </div>
       </div>
 
       <div className="mt-3 grid gap-3">
         <header className="flex items-start justify-between gap-2">
-          <h2 className="line-clamp-2 text-balance text-lg font-semibold text-white">{movie.titulo}</h2>
-          <Pill className="shrink-0 bg-white/5 text-white/60 border border-white/10" title="Fecha de estreno">
+          <h2 className="line-clamp-2 text-balance text-lg font-semibold text-white">
+            {movie.titulo}
+          </h2>
+          <Pill
+            className="shrink-0 bg-white/5 text-white/60 border border-white/10"
+            title="Fecha de estreno"
+          >
             {formatDate(movie.fechaEstreno)}
           </Pill>
         </header>
@@ -63,7 +108,9 @@ export default function MovieCard({ movie }: Props) {
           ))}
         </div>
 
-        <p className="line-clamp-3 text-sm leading-relaxed text-white/80">{movie.sinopsis}</p>
+        <p className="line-clamp-3 text-sm leading-relaxed text-white/80">
+          {movie.sinopsis}
+        </p>
 
         {movie.plataformas.length > 0 && (
           <div className="flex flex-wrap items-center gap-2">
@@ -77,11 +124,19 @@ export default function MovieCard({ movie }: Props) {
         )}
       </div>
 
-      <button
-        className="absolute inset-0 -z-10"
-        aria-hidden
-        tabIndex={-1}
+      <button className="absolute inset-0 -z-10" aria-hidden tabIndex={-1} />
+
+      <ConfirmDialog
+        open={openConfirm}
+        title="Eliminar película"
+        description={`¿Seguro que querés eliminar “${movie.titulo}”? Esta acción no se puede deshacer.`}
+        onCancel={() => setOpenConfirm(false)}
+        onConfirm={handleConfirmDelete}
       />
+
+      {deleting && (
+        <div className="pointer-events-none absolute inset-0 z-30 rounded-2xl bg-black/30" />
+      )}
     </article>
   )
 }

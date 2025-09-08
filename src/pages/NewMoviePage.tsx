@@ -1,4 +1,121 @@
+import { useState } from "react"
+import type { NewMovieForm } from "../types/NewMovieForm"
+import Input from "../components/ui/Input"
+import Textarea from "../components/ui/Textarea"
+import SelectWithSearch, { type Option } from "../components/ui/SelectWithSearch"
+import cls from "../utils/cls"
+
 export default function NewMoviePage() {
+  const [newMovieState, setNewMovieState] = useState<NewMovieForm>({
+    titulo: '',
+    duracionMinutos: '',
+    fechaEstreno: '',
+    sinopsis: '',
+    directorId: '',
+    generosIds: [],
+    plataformasIds: [],
+    elenco: []
+  })
+
+  const generoOptions: Option[] = [
+    { label: "Acción", value: 1 },
+    { label: "Comedia", value: 2 },
+    { label: "Drama", value: 3 }
+  ]
+
+  const plataformaOptions: Option[] = [
+    { label: "Netflix", value: 1 },
+    { label: "Prime Video", value: 2 },
+    { label: "HBO Max", value: 3 }
+  ]
+
+  const peopleOptions: Option[] = [
+    { label: "Persona 1", value: 1 },
+    { label: "Persona 2", value: 2 },
+    { label: "Persona 3", value: 3 }
+  ]
+
+  const [genreCache, setGenreCache] = useState<Record<number, string>>({})
+  const [platformCache, setPlatformCache] = useState<Record<number, string>>({})
+  const [peopleCache, setPeopleCache] = useState<Record<number, string>>({})
+  const [newCast, setNewCast] = useState<{ personaId: number | null; personaje: string }>({ personaId: null, personaje: '' })
+
+  const getGeneroLabel = (id: number) =>
+    genreCache[id] ?? generoOptions.find(o => Number(o.value) === id)?.label ?? `Género ${id}`
+
+  const getPlataformaLabel = (id: number) =>
+    platformCache[id] ?? plataformaOptions.find(o => Number(o.value) === id)?.label ?? `Plataforma ${id}`
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target
+    setNewMovieState(prev => ({ ...prev, [name]: value }))
+  }
+
+  const handleSelectChange = (name: string, option: Option | null) => {
+    setNewMovieState(prev => ({ ...prev, [name]: option?.value ?? '' }))
+  }
+
+  const handleMultipleSelectChange = (name: 'generosIds' | 'plataformasIds', option: Option | null) => {
+    if (!option) return
+    const valueNum = typeof option.value === 'number' ? option.value : Number(option.value)
+    if (Number.isNaN(valueNum)) return
+    setNewMovieState(prev => {
+      const current = prev[name]
+      const exists = current.includes(valueNum)
+      const next = exists ? current.filter(id => id !== valueNum) : [...current, valueNum]
+      return { ...prev, [name]: next }
+    })
+    if (name === 'generosIds') setGenreCache(prev => ({ ...prev, [valueNum]: option.label }))
+    if (name === 'plataformasIds') setPlatformCache(prev => ({ ...prev, [valueNum]: option.label }))
+  }
+
+  const handleDeleteMultipleSelectItem = (name: 'generosIds' | 'plataformasIds', id: number) => {
+    setNewMovieState(prev => {
+      const next = prev[name].filter(x => x !== id)
+      return { ...prev, [name]: next }
+    })
+  }
+
+  const handleElencoSelect = (option: Option | null) => {
+    const id = option ? (typeof option.value === 'number' ? option.value : Number(option.value)) : null
+    if (option && typeof id === 'number' && !Number.isNaN(id)) {
+      setPeopleCache(prev => ({ ...prev, [id]: option.label }))
+    }
+    setNewCast(prev => ({ ...prev, personaId: id }))
+  }
+
+  const handleElencoRoleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setNewCast(prev => ({ ...prev, personaje: e.target.value }))
+  }
+
+  const handleAddElenco = () => {
+    if (newCast.personaId == null || newCast.personaje.trim() === '') return
+    setNewMovieState(prev => {
+      const exists = prev.elenco.some(e => e.personaId === newCast.personaId)
+      const nextElenco = exists
+        ? prev.elenco.map(e => e.personaId === newCast.personaId ? { ...e, personaje: newCast.personaje.trim() } : e)
+        : [...prev.elenco, { personaId: newCast.personaId!, personaje: newCast.personaje.trim(), orden: prev.elenco.length + 1 }]
+      return { ...prev, elenco: nextElenco }
+    })
+    setNewCast({ personaId: null, personaje: '' })
+  }
+
+  const handleRemoveElenco = (personaId: number) => {
+    setNewMovieState(prev => {
+      const next = prev.elenco.filter(e => e.personaId !== personaId).map((e, i) => ({ ...e, orden: i + 1 }))
+      return { ...prev, elenco: next }
+    })
+  }
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+  }
+
+  const canSubmit = Object.values(newMovieState).every(value => {
+    if (Array.isArray(value)) return value.length > 0
+    return value !== '' && value !== null && value !== undefined
+  })
+
   return (
     <main className="mx-auto max-w-7xl px-4 pb-20">
       <section className="space-y-3 py-20 text-center">
@@ -6,47 +123,143 @@ export default function NewMoviePage() {
         <p className="text-white/70">Completá todos los campos y añadí una nueva película</p>
       </section>
 
-      <form className="flex flex-col gap-6">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-6">
         <div className="grid grid-cols-3 gap-6">
-          <div className="flex flex-col gap-1">
-            <label className="text-white">Título</label>
-            <input
-              className="bg-white p-2 rounded-md border-[#90A1B9] outline-none" 
-              type="text"
-              placeholder="Título de la película"
+          <Input name="titulo" label="Título" value={newMovieState.titulo} onChange={handleInputChange} placeholder="Título de la película" />
+          <Input name="duracionMinutos" type="number" label="Duración" value={newMovieState.duracionMinutos} onChange={handleInputChange} placeholder="Duración en minutos" />
+          <Input name="fechaEstreno" type="date" label="Fecha estreno" value={newMovieState.fechaEstreno} onChange={handleInputChange} placeholder="Fecha de estreno" />
+        </div>
+
+        <Textarea name="sinopsis" label="Sinopsis" value={newMovieState.sinopsis} onChange={handleInputChange} placeholder="Sinopsis de película" />
+
+        <div className="grid grid-cols-3 gap-6">
+          <div>
+            <SelectWithSearch
+              name="directorId"
+              label="Director"
+              value={newMovieState.directorId}
+              onChange={(option) => handleSelectChange("directorId", option)}
+              placeholder="Seleccionar director"
+              options={[{ label: "Director 1", value: "1" }, { label: "Director 2", value: "2" }]}
             />
           </div>
 
-          <div className="flex flex-col gap-1">
-            <label className="text-white">Duración</label>
-            <input
-              className="bg-white p-2 rounded-md border-[#90A1B9] outline-none" 
-              type="text"
-              placeholder="Duración en minutos"
+          <div>
+            <SelectWithSearch
+              name="generosIds"
+              label="Géneros"
+              value={null}
+              onChange={(option) => handleMultipleSelectChange("generosIds", option)}
+              placeholder="Seleccionar géneros"
+              options={generoOptions}
             />
+            <div className="mt-2 flex flex-wrap gap-2">
+              {newMovieState.generosIds.map(id => (
+                <span key={id} className="bg-white/10 text-white px-2 py-1 rounded-md text-sm flex items-center gap-2">
+                  {getGeneroLabel(id)}
+                  <button
+                    type="button"
+                    className="size-5 p-1 flex items-center justify-center bg-red-500 rounded-full text-xs font-bold hover:bg-red-500/80"
+                    onClick={() => handleDeleteMultipleSelectItem("generosIds", id)}
+                  >
+                    x
+                  </button>
+                </span>
+              ))}
+            </div>
           </div>
 
-          <div className="flex flex-col gap-1">
-            <label className="text-white">Fecha estreno</label>
-            <input
-              className="bg-white p-2 rounded-md border-[#90A1B9] outline-none" 
-              type="date"
-              placeholder="Fecha de estreno"
+          <div>
+            <SelectWithSearch
+              name="plataformasIds"
+              label="Plataformas"
+              value={null}
+              onChange={(option) => handleMultipleSelectChange("plataformasIds", option)}
+              placeholder="Seleccionar plataformas"
+              options={plataformaOptions}
             />
+            <div className="mt-2 flex flex-wrap gap-2">
+              {newMovieState.plataformasIds.map(id => (
+                <span key={id} className="bg-white/10 text-white px-2 py-1 rounded-md text-sm flex items-center gap-2">
+                  {getPlataformaLabel(id)}
+                  <button
+                    type="button"
+                    className="size-5 p-1 flex items-center justify-center bg-red-500 rounded-full text-xs font-bold hover:bg-red-500/80"
+                    onClick={() => handleDeleteMultipleSelectItem("plataformasIds", id)}
+                  >
+                    x
+                  </button>
+                </span>
+              ))}
+            </div>
           </div>
         </div>
 
-        <div className="flex flex-col gap-1">
-          <label className="text-white">Sinopsis</label>
-          <textarea className="bg-white p-2 rounded-md border-[#90A1B9] outline-none h-24 resize-none" placeholder="Sinopsis de película">
-          </textarea>
+        <div className="flex flex-col gap-4">
+          <div className="grid grid-cols-[1fr_1fr_auto] items-end gap-6">
+            <SelectWithSearch
+              className="w-full"
+              name="elenco"
+              label="Elenco"
+              value={newCast.personaId}
+              onChange={handleElencoSelect}
+              placeholder="Seleccionar persona"
+              options={peopleOptions}
+            />
+
+            <Input name="rol" label="Rol" value={newCast.personaje} onChange={handleElencoRoleChange} placeholder="Rol en la película" />
+
+            <button
+              type="button"
+              onClick={handleAddElenco}
+              disabled={newCast.personaId == null || newCast.personaje.trim() === ''}
+              className={cls(
+                "h-10 px-4 rounded-md text-white font-semibold transition",
+                newCast.personaId == null || newCast.personaje.trim() === ''
+                  ? "bg-blue-500/60 cursor-not-allowed"
+                  : "bg-blue-500 hover:bg-blue-500/80"
+              )}
+            >
+              Agregar
+            </button>
+          </div>
+
+          {newMovieState.elenco.length > 0 && (
+            <ul className="space-y-2">
+              {newMovieState.elenco.map((m) => (
+                <li key={m.personaId} className="flex items-center justify-between rounded-md bg-white/10 px-3 py-2">
+                  <div className="text-white">
+                    <span className="font-medium">{peopleCache[m.personaId] ?? `Persona ${m.personaId}`}</span>
+                    <span className="text-white/70">{` — ${m.personaje}`}</span>
+                    <span className="ml-2 text-white/50">{`#${m.orden}`}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveElenco(m.personaId)}
+                      className="h-8 px-3 rounded-md bg-red-500 text-white text-sm hover:bg-red-500/80"
+                    >
+                      Quitar
+                    </button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
 
         <div className="flex gap-6">
-          <button className="bg-green-500 flex-1 px-4 py-2 rounded-md text-white font-semibold hover:bg-green-500/80 transition cursor-pointer">
+          <button
+            type="submit"
+            disabled={!canSubmit}
+            className={cls(
+              "bg-green-500 flex-1 px-4 py-2 rounded-md text-white font-semibold hover:bg-green-500/80 transition",
+              !canSubmit ? "opacity-70 cursor-not-allowed" : "cursor-pointer"
+            )}
+          >
             Guardar
           </button>
-          <button className="bg-red-500 flex-1 px-4 py-2 rounded-md text-white font-semibold hover:bg-red-500/80 transition cursor-pointer">
+          <button type="button" className="bg-red-500 flex-1 px-4 py-2 rounded-md text-white font-semibold hover:bg-red-500/80 transition cursor-pointer">
             Cancelar
           </button>
         </div>
