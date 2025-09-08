@@ -3,7 +3,7 @@ import { NavLink } from "react-router";
 
 export default function Header() {
   return (
-    <header className="bg-[#121C2E] py-5 px-10 sm:px-20 flex items-center justify-between">
+    <header className="bg-[#121C2E] py-5 px-10 sm:px-20 flex items-center justify-between sticky top-0 z-[999]">
       <div className="flex items-center gap-2">
         <div className="logo">
           <div className="triangle left"></div>
