@@ -2,7 +2,7 @@ import type { Movie } from "../../types/Movie";
 import MovieCard from "./MovieCard";
 import { MovieCardSkeleton } from "./MovieCardSkeleton";
 
-export default function MoviesGrid({ movies, isLoading }: { movies: Movie[]; isLoading?: boolean }) {
+export default function MoviesGrid({ movies, isLoading, handleDeleteMovie }: { movies: Movie[]; isLoading?: boolean; handleDeleteMovie: (id: number) => void }) {
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
@@ -16,7 +16,9 @@ export default function MoviesGrid({ movies, isLoading }: { movies: Movie[]; isL
   return (
     <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
       {movies.map((m) => (
-        <MovieCard key={m.id} movie={m} />
+        m.activa
+          ? <MovieCard key={m.id} movie={m} handleDeleteMovie={handleDeleteMovie} />
+          : null
       ))}
     </div>
   )

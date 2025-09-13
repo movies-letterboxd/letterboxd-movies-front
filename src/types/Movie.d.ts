@@ -6,25 +6,35 @@ export type Movie = {
   fechaEstreno: string
   poster: string
   activa: boolean
-  director: {
-    id: number
-    nombre: string
-    imagen: string
-  }
-  generos: {
-    id: number
-    nombre: string
-  }[]
-  plataformas: {
-    id: number
-    nombre: string
-    logoUrl: string
-  }[]
-  elenco: {
-    id: number
-    nombrePersona: string
-    personaje: string
-    orden: number
-    imagenPersona: string
-  }[]
+  director: Director
+  generos: Genero[]
+  plataformas: Plataforma[]
+  elenco: Actor[]
+}
+
+export type Director = {
+  id: number
+  nombre: string
+  imagen: string
+}
+
+export type Genero = {
+  id: number
+  nombre: string
+}
+
+export type Plataforma = {
+  id: number
+  nombre: string
+  logoUrl: string
+}
+
+export type Actor = {
+  id: number
+  nombre: string
+  nombrePersona: string
+  personaje: string
+  orden?: number
+  imagenUrl: string
+  imagenPersona: string;
 }

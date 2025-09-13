@@ -1,9 +1,12 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import type { NewMovieForm } from "../types/NewMovieForm"
 import Input from "../components/ui/Input"
 import Textarea from "../components/ui/Textarea"
 import SelectWithSearch, { type Option } from "../components/ui/SelectWithSearch"
 import cls from "../utils/cls"
+import apiClient from "../services/apiClient"
+import type { Actor, Director, Genero, Plataforma } from "../types/Movie"
+import { createMovie } from "../services/movieService"
 
 export default function NewMoviePage() {
   const [newMovieState, setNewMovieState] = useState<NewMovieForm>({
@@ -17,28 +20,42 @@ export default function NewMoviePage() {
     elenco: []
   })
 
-  const generoOptions: Option[] = [
-    { label: "Acción", value: 1 },
-    { label: "Comedia", value: 2 },
-    { label: "Drama", value: 3 }
-  ]
+  const [imageInput, setImageInput] = useState<File | null>(null)
 
-  const plataformaOptions: Option[] = [
-    { label: "Netflix", value: 1 },
-    { label: "Prime Video", value: 2 },
-    { label: "HBO Max", value: 3 }
-  ]
-
-  const peopleOptions: Option[] = [
-    { label: "Persona 1", value: 1 },
-    { label: "Persona 2", value: 2 },
-    { label: "Persona 3", value: 3 }
-  ]
+  const [generoOptions, setGeneroOptions] = useState<Option[]>([])
+  const [plataformaOptions, setPlataformaOptions] = useState<Option[]>([])
+  const [peopleOptions, setPeopleOptions] = useState<Option[]>([])
+  const [directorOptions, setDirectorOptions] = useState<Option[]>([])
 
   const [genreCache, setGenreCache] = useState<Record<number, string>>({})
   const [platformCache, setPlatformCache] = useState<Record<number, string>>({})
   const [peopleCache, setPeopleCache] = useState<Record<number, string>>({})
   const [newCast, setNewCast] = useState<{ personaId: number | null; personaje: string }>({ personaId: null, personaje: '' })
+
+  useEffect(() => {
+    const fetchOptions = async () => {
+      try {
+        const [genresRes, platformsRes, peopleRes, directorsRes] = await Promise.all([
+          apiClient.get('/generos'),
+          apiClient.get('/plataformas'),
+          apiClient.get('/personas/actores'),
+          apiClient.get('/personas/directores')
+        ])
+        const genresData = (genresRes as any)?.data.data ?? []
+        const platformsData = (platformsRes as any)?.data.data ?? []
+        const peopleData = (peopleRes as any)?.data ?? []
+        const directorsData = (directorsRes as any)?.data ?? []
+
+        setGeneroOptions(genresData.map((g: Genero) => ({ label: g.nombre, value: g.id.toString() })))
+        setPlataformaOptions(platformsData.map((p: Plataforma) => ({ label: p.nombre, value: p.id.toString() })))
+        setPeopleOptions(peopleData.map((p: Actor) => ({ label: p.nombre, value: p.id.toString() })))
+        setDirectorOptions(directorsData.map((d: Director) => ({ label: d.nombre, value: d.id.toString() })))
+      } catch (error) {
+        console.error("Error fetching options", error);
+      }
+    }
+    fetchOptions()
+  }, [])
 
   const getGeneroLabel = (id: number) =>
     genreCache[id] ?? generoOptions.find(o => Number(o.value) === id)?.label ?? `Género ${id}`
@@ -53,6 +70,11 @@ export default function NewMoviePage() {
 
   const handleSelectChange = (name: string, option: Option | null) => {
     setNewMovieState(prev => ({ ...prev, [name]: option?.value ?? '' }))
+  }
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] ?? null
+    setImageInput(file)
   }
 
   const handleMultipleSelectChange = (name: 'generosIds' | 'plataformasIds', option: Option | null) => {
@@ -107,8 +129,41 @@ export default function NewMoviePage() {
     })
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    try {
+      const payload = {
+        titulo: newMovieState.titulo,
+        sinopsis: newMovieState.sinopsis,
+        duracionMinutos: Number(newMovieState.duracionMinutos),
+        fechaEstreno: newMovieState.fechaEstreno,
+        directorId: Number(newMovieState.directorId),
+        generosIds: newMovieState.generosIds,
+        plataformasIds: newMovieState.plataformasIds,
+        elenco: newMovieState.elenco.map(e => ({ personaId: e.personaId, personaje: e.personaje, orden: e.orden }))
+      }
+
+      const response = await createMovie(payload, imageInput)
+      if (response.success) {
+        alert("Película creada con éxito.")
+        setNewMovieState({
+          titulo: '',
+          sinopsis: '',
+          duracionMinutos: '',
+          fechaEstreno: '',
+          directorId: '',
+          generosIds: [],
+          plataformasIds: [],
+          elenco: []
+        })
+        setImageInput(null)
+      } else {
+        alert("Error creando película: " + response.error)
+      }
+
+    } catch (error) {
+      console.error("Error creating movie", error);
+    }
   }
 
   const canSubmit = Object.values(newMovieState).every(value => {
@@ -124,6 +179,19 @@ export default function NewMoviePage() {
       </section>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+        <div>
+          <label htmlFor="image" className="block text-sm font-medium text-white mb-1">Imagen</label>
+          <input
+            type="file"
+            id="image"
+            name="image"
+            accept="image/*"
+            onChange={handleImageChange}
+            className="block w-full text-sm text-white bg-white/5 rounded-md border border-white/10 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent p-2"
+          />
+          {imageInput && <p className="mt-2 text-sm text-white/70">Archivo seleccionado: {imageInput.name}</p>}
+        </div>
+
         <div className="grid grid-cols-3 gap-6">
           <Input name="titulo" label="Título" value={newMovieState.titulo} onChange={handleInputChange} placeholder="Título de la película" />
           <Input name="duracionMinutos" type="number" label="Duración" value={newMovieState.duracionMinutos} onChange={handleInputChange} placeholder="Duración en minutos" />
@@ -140,7 +208,7 @@ export default function NewMoviePage() {
               value={newMovieState.directorId}
               onChange={(option) => handleSelectChange("directorId", option)}
               placeholder="Seleccionar director"
-              options={[{ label: "Director 1", value: "1" }, { label: "Director 2", value: "2" }]}
+              options={directorOptions}
             />
           </div>
 
