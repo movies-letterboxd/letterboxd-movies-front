@@ -7,9 +7,15 @@ import { Navigate } from 'react-router'
 import Layout from './components/Layout.tsx'
 import './tailwind-input.css'
 import EditMoviePage from './pages/EditMoviePage.tsx'
+import { Toaster } from 'react-hot-toast'
 
 createRoot(document.getElementById('root')!).render(
   <BrowserRouter>
+    <Toaster
+      position="bottom-right"
+      reverseOrder={false}
+    />
+    
     <Layout>
       <Routes>
         <Route path="/movies" element={<MoviesPage />} />

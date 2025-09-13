@@ -8,6 +8,7 @@ import type { Actor, Director, Genero, Plataforma, Movie } from "../types/Movie"
 import apiClient from "../services/apiClient";
 import { getMovieById } from "../services/movieService";
 import { updateMovie, type MoviePayload } from "../services/movieService"
+import toast from "react-hot-toast";
 
 function movieToForm(m: Movie) {
     return {
@@ -110,7 +111,7 @@ export default function EditMoviePage() {
             } catch (err: any) {
                 console.error("Error inicializando edición", err);
                 if (err?.response?.status === 404) {
-                    alert("La película no existe.");
+                    toast.error("La película no existe.")
                     navigate("/movies");
                 }
             } finally {
@@ -210,13 +211,13 @@ export default function EditMoviePage() {
             const res = await updateMovie(Number(id), payload, imageInput);
 
             if ((res as any)?.success) {
-                alert("Película actualizada ✨");
+                toast.success("Película actualizada con éxito")
                 navigate(`/movies/${id}`);
             }
         } catch (err: any) {
             console.error("Error actualizando película", err);
             const msg = err?.response?.data || err?.message || "Error desconocido";
-            alert(`No se pudo actualizar: ${msg}`);
+            toast.error(`No se pudo actualizar: ${msg}`)
         }
     };
 

@@ -5,6 +5,7 @@ import { Star } from "lucide-react"
 import { type Movie } from "../types/Movie.d"
 import { getMovieById } from "../services/movieService";
 import MovieSkeleton from "../components/movies/MovieSkeleton";
+import toast from "react-hot-toast";
 
 export default function MoviePage() {
   const { id } = useParams()
@@ -24,7 +25,7 @@ export default function MoviePage() {
       console.error("Error cargando película", err);
       
       if (err?.response?.status === 404) {
-        alert("La película no existe.");
+        toast.error("La película no existe.");
         navigate("/movies");
       }
     } finally {
@@ -40,7 +41,7 @@ export default function MoviePage() {
   if (loading || !movie) {
     return <MovieSkeleton />
   }
-  console.log(movie)
+
   return (
     <div className="max-w-6xl mx-auto p-6 py-20 text-gray-100">
       <div className="grid md:grid-cols-3 gap-6">

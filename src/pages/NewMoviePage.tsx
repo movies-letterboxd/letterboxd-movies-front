@@ -7,8 +7,12 @@ import cls from "../utils/cls"
 import apiClient from "../services/apiClient"
 import type { Actor, Director, Genero, Plataforma } from "../types/Movie"
 import { createMovie } from "../services/movieService"
+import toast from "react-hot-toast"
+import { useNavigate } from "react-router"
 
 export default function NewMoviePage() {
+  const navigate = useNavigate()
+
   const [newMovieState, setNewMovieState] = useState<NewMovieForm>({
     titulo: '',
     duracionMinutos: '',
@@ -42,6 +46,7 @@ export default function NewMoviePage() {
           apiClient.get('/personas/actores'),
           apiClient.get('/personas/directores')
         ])
+
         const genresData = (genresRes as any)?.data.data ?? []
         const platformsData = (platformsRes as any)?.data.data ?? []
         const peopleData = (peopleRes as any)?.data ?? []
@@ -162,7 +167,7 @@ export default function NewMoviePage() {
 
       const response = await createMovie(payload, imageInput)
       if (response.success) {
-        alert("Película creada con éxito.")
+        toast.success("Película creada con éxito");
         setNewMovieState({
           titulo: '',
           sinopsis: '',
@@ -178,8 +183,10 @@ export default function NewMoviePage() {
         setImagePreview(null)
         const input = document.getElementById("image") as HTMLInputElement | null
         if (input) input.value = ""
+
+        navigate(`/movies/${response.data.data.id}`)
       } else {
-        alert("Error creando película: " + response.error)
+        toast.error("Error creando película: " + response.error)
       }
 
     } catch (error) {
