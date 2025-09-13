@@ -1,18 +1,21 @@
 // components/MovieDetail.tsx
 import { useEffect, useState } from "react"
-import { useParams, useNavigate } from "react-router"
-import { Star } from "lucide-react"
+import { useParams, useNavigate, Link } from "react-router"
+import { Pencil, Star, Trash2 } from "lucide-react"
 import { type Movie } from "../types/Movie.d"
-import { getMovieById } from "../services/movieService";
+import { deleteMovieById, getMovieById } from "../services/movieService";
 import MovieSkeleton from "../components/movies/MovieSkeleton";
 import toast from "react-hot-toast";
+import ConfirmDialog from "../components/ui/ConfirmDialog";
 
 export default function MoviePage() {
   const { id } = useParams()
   const navigate = useNavigate()
   const [movie, setMovie] = useState<Movie | null>(null)
   const [loading, setLoading] = useState(false)
-  
+  const [openConfirm, setOpenConfirm] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+
   const fetchPelicula = async () => {
     if (!id) return;
     setLoading(true);
@@ -23,7 +26,7 @@ export default function MoviePage() {
       setMovie(data as Movie);
     } catch (err: any) {
       console.error("Error cargando película", err);
-      
+
       if (err?.response?.status === 404) {
         toast.error("La película no existe.");
         navigate("/movies");
@@ -42,8 +45,35 @@ export default function MoviePage() {
     return <MovieSkeleton />
   }
 
+  const handleConfirmDelete = async () => {
+    try {
+      setDeleting(true)
+
+      const response = await deleteMovieById(movie.id)
+
+      if (response.success) {
+        navigate("/movies")
+        toast.success("Película eliminada con éxito.")
+        setOpenConfirm(false)
+      }
+    } catch (error) {
+      console.error("Error eliminando película", error)
+    } finally {
+      setDeleting(false)
+    }
+  }
+
   return (
     <div className="max-w-6xl mx-auto p-6 py-20 text-gray-100">
+
+      <ConfirmDialog
+        open={openConfirm}
+        title="Eliminar película"
+        description={`¿Seguro que querés eliminar “${movie.titulo}”? Esta acción no se puede deshacer.`}
+        onCancel={() => setOpenConfirm(false)}
+        onConfirm={handleConfirmDelete}
+      />
+
       <div className="grid md:grid-cols-3 gap-6">
         {/* Poster + Plataformas */}
         <div className="col-span-1">
@@ -87,7 +117,12 @@ export default function MoviePage() {
             <div className="flex items-center justify-between">
               <h1 className="text-4xl font-bold">{movie.titulo}</h1>
               <div className="flex gap-3">
-                
+                <button onClick={() => setOpenConfirm(true)} className="bg-red-600 p-2 rounded-lg hover:bg-red-600/80 transition">
+                  <Trash2 size={16} />
+                </button>
+                <Link to={`/movies/${movie.id}/edit`} className="bg-blue-600 p-2 rounded-lg hover:bg-blue-600/80 transition">
+                  <Pencil size={16} />
+                </Link>
               </div>
             </div>
 
@@ -101,9 +136,8 @@ export default function MoviePage() {
               {Array.from({ length: 5 }).map((_, i) => (
                 <Star
                   key={i}
-                  className={`w-6 h-6 ${
-                    i < (0) ? "text-green-400 fill-green-400" : "text-gray-700"
-                  }`}
+                  className={`w-6 h-6 ${i < (0) ? "text-green-400 fill-green-400" : "text-gray-700"
+                    }`}
                 />
               ))}
               <span className="ml-2 text-sm text-gray-400">{0}/5</span>

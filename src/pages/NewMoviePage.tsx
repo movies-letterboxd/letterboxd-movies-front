@@ -8,7 +8,7 @@ import apiClient from "../services/apiClient"
 import type { Actor, Director, Genero, Plataforma } from "../types/Movie"
 import { createMovie } from "../services/movieService"
 import toast from "react-hot-toast"
-import { useNavigate } from "react-router"
+import { Link, useNavigate } from "react-router"
 
 export default function NewMoviePage() {
   const navigate = useNavigate()
@@ -381,9 +381,9 @@ export default function NewMoviePage() {
           >
             Guardar
           </button>
-          <button type="button" className="bg-red-500 flex-1 px-4 py-2 rounded-md text-white font-semibold hover:bg-red-500/80 transition cursor-pointer">
+          <Link to="/movies" className="bg-red-500 flex-1 px-4 py-2 rounded-md text-white font-semibold hover:bg-red-500/80 transition cursor-pointer text-center">
             Cancelar
-          </button>
+          </Link>
         </div>
       </form>
     </main>

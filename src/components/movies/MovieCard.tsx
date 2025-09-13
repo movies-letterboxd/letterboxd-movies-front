@@ -10,6 +10,8 @@ import PlatformBadge from "./PlatformBadge"
 import { useState } from "react"
 import ConfirmDialog from "../ui/ConfirmDialog"
 import { deleteMovieById } from "../../services/movieService"
+import toast from "react-hot-toast"
+import { Pencil, Trash2 } from "lucide-react"
 
 interface Props {
   movie: Movie
@@ -44,7 +46,7 @@ export default function MovieCard({ movie, handleDeleteMovie }: Props) {
       if (response.success) {
         handleDeleteMovie(movie.id)
         setOpenConfirm(false)
-        alert("Película eliminada con éxito.")
+        toast.success("Película eliminada con éxito.")
       }
     } finally {
       setDeleting(false)
@@ -58,21 +60,21 @@ export default function MovieCard({ movie, handleDeleteMovie }: Props) {
       aria-label={`Película: ${movie?.titulo}`}
     >
       {isAdmin && (
-        <div className="absolute right-2 top-2 z-20 flex items-center gap-2">
+        <div className="absolute right-2 top-2 z-20 flex items-center gap-2 p-2">
           <button
             type="button"
             onClick={handleDeleteClick}
-            className="rounded-md bg-red-600/90 px-3 py-1.5 text-sm font-medium text-white shadow hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400"
+            className="rounded-md bg-red-600/90 p-2 text-sm font-medium text-white shadow hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400"
           >
-            Eliminar
+            <Trash2 size={16} />
           </button>
 
           <Link
             to={`/movies/${movie.id}/edit`}
             onClick={(e) => e.stopPropagation()}
-            className="rounded-md bg-blue-600/90 px-3 py-1.5 text-sm font-medium text-white shadow hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="rounded-md bg-blue-600/90 p-2 text-sm font-medium text-white shadow hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
           >
-            Editar
+            <Pencil size={16} />
           </Link>
         </div>
       )}
