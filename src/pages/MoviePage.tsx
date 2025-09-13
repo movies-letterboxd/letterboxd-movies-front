@@ -14,7 +14,7 @@ export default function MoviePage() {
   const [movie, setMovie] = useState<Movie | null>(null)
   const [loading, setLoading] = useState(false)
   const [openConfirm, setOpenConfirm] = useState(false)
-  const [deleting, setDeleting] = useState(false)
+  const [, setDeleting] = useState(false)
 
   const fetchPelicula = async () => {
     if (!id) return;
