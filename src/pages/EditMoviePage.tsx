@@ -20,7 +20,7 @@ function movieToForm(m: Movie) {
         generosIds: (m.generos ?? []).map(g => Number(g.id)),
         plataformasIds: (m.plataformas ?? []).map(p => Number(p.id)),
         elenco: (m.elenco ?? []).map((e, idx) => ({
-            personaId: Number(e.id),
+            personaId: Number(e.personaId),
             personaje: e.personaje ?? "",
             orden: e.orden ?? idx + 1,
         })),
@@ -105,7 +105,7 @@ export default function EditMoviePage() {
                         Object.fromEntries((data.plataformas ?? []).map((p: Plataforma) => [Number(p.id), p.nombre]))
                     );
                     setPeopleCache(
-                        Object.fromEntries((data.elenco ?? []).map((e: Actor) => [Number(e.id), e.nombrePersona]))
+                        Object.fromEntries((data.elenco ?? []).map((e: Actor & { personaId: number }) => [Number(e.personaId), e.nombrePersona]))
                     );
                 }
             } catch (err: any) {

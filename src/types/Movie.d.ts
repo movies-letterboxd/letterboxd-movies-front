@@ -31,6 +31,7 @@ export type Plataforma = {
 
 export type Actor = {
   id: number
+  personaId: number
   nombre: string
   nombrePersona: string
   personaje: string
