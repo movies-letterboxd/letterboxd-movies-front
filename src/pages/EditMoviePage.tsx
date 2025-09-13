@@ -207,8 +207,6 @@ export default function EditMoviePage() {
                 elenco: form.elenco.map(e => ({ personaId: e.personaId, personaje: e.personaje, orden: e.orden })),
             };
 
-            console.log(payload.elenco)
-
             const res = await updateMovie(Number(id), payload, imageInput);
 
             if ((res as any)?.success) {

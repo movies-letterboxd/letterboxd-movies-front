@@ -21,6 +21,7 @@ export default function NewMoviePage() {
   })
 
   const [imageInput, setImageInput] = useState<File | null>(null)
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
 
   const [generoOptions, setGeneroOptions] = useState<Option[]>([])
   const [plataformaOptions, setPlataformaOptions] = useState<Option[]>([])
@@ -57,6 +58,12 @@ export default function NewMoviePage() {
     fetchOptions()
   }, [])
 
+  useEffect(() => {
+    return () => {
+      if (imagePreview) URL.revokeObjectURL(imagePreview)
+    }
+  }, [imagePreview])
+
   const getGeneroLabel = (id: number) =>
     genreCache[id] ?? generoOptions.find(o => Number(o.value) === id)?.label ?? `Género ${id}`
 
@@ -75,6 +82,16 @@ export default function NewMoviePage() {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] ?? null
     setImageInput(file)
+    if (imagePreview) URL.revokeObjectURL(imagePreview)
+    setImagePreview(file ? URL.createObjectURL(file) : null)
+  }
+
+  const handleClearImage = () => {
+    if (imagePreview) URL.revokeObjectURL(imagePreview)
+    setImageInput(null)
+    setImagePreview(null)
+    const input = document.getElementById("image") as HTMLInputElement | null
+    if (input) input.value = ""
   }
 
   const handleMultipleSelectChange = (name: 'generosIds' | 'plataformasIds', option: Option | null) => {
@@ -156,7 +173,11 @@ export default function NewMoviePage() {
           plataformasIds: [],
           elenco: []
         })
+        if (imagePreview) URL.revokeObjectURL(imagePreview)
         setImageInput(null)
+        setImagePreview(null)
+        const input = document.getElementById("image") as HTMLInputElement | null
+        if (input) input.value = ""
       } else {
         alert("Error creando película: " + response.error)
       }
@@ -179,17 +200,43 @@ export default function NewMoviePage() {
       </section>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-        <div>
-          <label htmlFor="image" className="block text-sm font-medium text-white mb-1">Imagen</label>
-          <input
-            type="file"
-            id="image"
-            name="image"
-            accept="image/*"
-            onChange={handleImageChange}
-            className="block w-full text-sm text-white bg-white/5 rounded-md border border-white/10 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent p-2"
-          />
-          {imageInput && <p className="mt-2 text-sm text-white/70">Archivo seleccionado: {imageInput.name}</p>}
+        <div className="grid grid-cols-3 gap-6 items-start">
+          <div className="col-span-2">
+            <label htmlFor="image" className="block text-sm font-medium text-white mb-1">Imagen</label>
+            <input
+              type="file"
+              id="image"
+              name="image"
+              accept="image/*"
+              onChange={handleImageChange}
+              className="block w-full text-sm text-white bg-white/5 rounded-md border border-white/10 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent p-2"
+            />
+            {imageInput && (
+              <div className="mt-2 text-sm text-white/70 flex items-center gap-3">
+                <span>Seleccionada: {imageInput.name}</span>
+                <button
+                  type="button"
+                  className="px-2 py-1 rounded bg-white/10 hover:bg-white/20"
+                  onClick={handleClearImage}
+                >
+                  Quitar
+                </button>
+              </div>
+            )}
+          </div>
+
+          <div className="col-span-1">
+            <p className="text-sm text-white/70 mb-2">Vista previa</p>
+            <div className="aspect-[2/3] w-full overflow-hidden rounded-lg bg-white/5 border border-white/10">
+              {imagePreview ? (
+                <img src={imagePreview} alt="Poster" className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full grid place-content-center text-white/40">
+                  Sin imagen
+                </div>
+              )}
+            </div>
+          </div>
         </div>
 
         <div className="grid grid-cols-3 gap-6">
