@@ -40,14 +40,14 @@ export default function MoviePage() {
   if (loading || !movie) {
     return <MovieSkeleton />
   }
-
+  console.log(movie)
   return (
     <div className="max-w-6xl mx-auto p-6 py-20 text-gray-100">
       <div className="grid md:grid-cols-3 gap-6">
         {/* Poster + Plataformas */}
         <div className="col-span-1">
           <img
-            src={movie.poster}
+            src={movie.poster.startsWith("/uploads") ? `http://localhost:8080${movie.poster}` : movie.poster}
             alt={movie.titulo}
             loading="lazy"
             onError={(e) => {

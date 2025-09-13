@@ -1,4 +1,4 @@
-import { Gamepad2, LogOut, Search } from "lucide-react";
+import { Gamepad2, LogOut } from "lucide-react";
 import { NavLink } from "react-router";
 
 export default function Header() {
@@ -15,12 +15,6 @@ export default function Header() {
 
       <div className="flex items-center gap-9">
         <ol className="xl:flex items-center gap-9 text-white hidden">
-          {/*<NavLink
-            className={({ isActive }) => `text-[#90A1B9] hover:text-[#336ab7] hover:transition-colors font-bold uppercase ${isActive ? 'text-[#336ab7]' : ''}`}
-            to="/usuarios"
-          >
-            Usuario
-          </NavLink>*/}
           <NavLink
             className={({ isActive }) => `text-[#90A1B9] hover:text-[#517fc1] hover:transition-colors font-bold uppercase ${isActive ? 'text-[#336ab7]' : ''}`}
             to="/movies"

@@ -1,5 +1,16 @@
 import apiClient from "./apiClient"
 
+export type MoviePayload = {
+  titulo: string;
+  sinopsis: string;
+  duracionMinutos: number;
+  fechaEstreno: string;
+  directorId: number;
+  generosIds: number[];
+  plataformasIds: number[];
+  elenco: Array<{ personaId: number; personaje: string; orden: number }>;
+};
+
 export const getMovieById = async (id: number) => {
   try {
     const response = await apiClient.get(`/peliculas/${id}`)
@@ -43,7 +54,7 @@ export const deleteMovieById = async (id: number) => {
   }
 }
 
-export const createMovie = async (movieData: any, imageFile: File | null) => {
+export const createMovie = async (movieData: MoviePayload, imageFile: File | null) => {
   try {
     const formData = new FormData()
     formData.append("pelicula", new Blob([JSON.stringify(movieData)], { type: "application/json" }))
@@ -66,5 +77,32 @@ export const createMovie = async (movieData: any, imageFile: File | null) => {
     }
   } catch (error: any) {
     return { success: false, error: error.message }
+  }
+}
+
+export async function updateMovie(id: number, movieData: MoviePayload, imageFile: File | null) {
+  try {
+    const formData = new FormData();
+    formData.append(
+      "pelicula",
+      new Blob([JSON.stringify(movieData)], { type: "application/json" })
+    );
+  
+    if (imageFile) {
+      formData.append("imagen", imageFile);
+    }
+  
+    const res = await apiClient.put(`/peliculas/${id}`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+
+    if (res.status === 200) {
+      return { success: true, data: res.data };
+    } else {
+      console.error("Error al actualizar película:", res.statusText);
+      return { success: false, error: res.statusText };
+    }
+  } catch (error: any) {
+    return { success: false, error: error.message };
   }
 }

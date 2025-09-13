@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router"
+import { Link, useNavigate } from "react-router"
 import type { Movie } from "../../types/Movie"
 import formatDate from "../../utils/formatDate"
 import formatMinutes from "../../utils/formatMinutes"
@@ -58,7 +58,7 @@ export default function MovieCard({ movie, handleDeleteMovie }: Props) {
       aria-label={`Película: ${movie?.titulo}`}
     >
       {isAdmin && (
-        <div className="absolute right-2 top-2 z-20">
+        <div className="absolute right-2 top-2 z-20 flex items-center gap-2">
           <button
             type="button"
             onClick={handleDeleteClick}
@@ -66,13 +66,21 @@ export default function MovieCard({ movie, handleDeleteMovie }: Props) {
           >
             Eliminar
           </button>
+
+          <Link
+            to={`/movies/${movie.id}/edit`}
+            onClick={(e) => e.stopPropagation()}
+            className="rounded-md bg-blue-600/90 px-3 py-1.5 text-sm font-medium text-white shadow hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          >
+            Editar
+          </Link>
         </div>
       )}
 
       <div className="relative">
         <div className="relative overflow-hidden rounded-xl">
           <img
-            src={movie?.poster}
+            src={movie?.poster?.startsWith("/uploads") ? `http://localhost:8080${movie?.poster}` : movie?.poster}
             alt={`Poster de ${movie?.titulo}`}
             loading="lazy"
             onError={(e) => {
