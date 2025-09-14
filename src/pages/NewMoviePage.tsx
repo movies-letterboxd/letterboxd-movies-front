@@ -273,7 +273,7 @@ export default function NewMoviePage() {
         <div className="grid grid-cols-3 gap-6">
           <div>
             <div className="mb-2 flex items-end justify-between">
-              <label className="text-sm font-medium text-white">Director</label>
+              <label className="font-medium text-white">Director</label>
               <button
                 type="button"
                 onClick={() => setIsDirectorModalOpen(true)}
@@ -346,7 +346,7 @@ export default function NewMoviePage() {
           <div className="grid grid-cols-[1fr_auto_auto] items-end gap-6">
             <div>
               <div className="mb-2 flex items-end justify-between">
-                <label className="text-sm font-medium text-white">Elenco</label>
+                <label className="font-medium text-white">Elenco</label>
                 <button
                   type="button"
                   onClick={() => setIsActorModalOpen(true)}
