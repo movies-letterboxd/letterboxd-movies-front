@@ -9,7 +9,7 @@ export default function DirectorChip({ nombre, imagen }: { nombre: string; image
             src={imagen.startsWith("/uploads") ? `${BASE_URL}${imagen}` : imagen}
             alt={`Directora/or: ${nombre}`}
             onError={(e) => {
-              (e.currentTarget as HTMLImageElement).src = "https://via.placeholder.com/64?text=?"
+              (e.currentTarget as HTMLImageElement).src = "https://placehold.co/64x64?text=Director"
             }}
             className="h-5 w-5 rounded-full object-cover"
             loading="lazy"
