@@ -12,6 +12,7 @@ import ConfirmDialog from "../ui/ConfirmDialog"
 import { deleteMovieById } from "../../services/movieService"
 import toast from "react-hot-toast"
 import { Pencil, Trash2 } from "lucide-react"
+import { BASE_URL } from "../../services/apiClient"
 
 interface Props {
   movie: Movie
@@ -82,7 +83,7 @@ export default function MovieCard({ movie, handleDeleteMovie }: Props) {
       <div className="relative">
         <div className="relative overflow-hidden rounded-xl">
           <img
-            src={movie?.poster?.startsWith("/uploads") ? `http://localhost:8080${movie?.poster}` : movie?.poster}
+            src={movie?.poster?.startsWith("/uploads") ? `${BASE_URL}${movie?.poster}` : movie?.poster}
             alt={`Poster de ${movie?.titulo}`}
             loading="lazy"
             onError={(e) => {

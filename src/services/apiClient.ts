@@ -1,7 +1,9 @@
 import axios from "axios"
 
+export const BASE_URL = 'https://movies.ufodevelopment.com';
+
 const apiClient = axios.create({
-  baseURL: 'https://movies.ufodevelopment.com/api',
+  baseURL: `${BASE_URL}/api`,
   headers:{
       "Content-Type": "application/json", 
   },

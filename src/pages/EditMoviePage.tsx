@@ -5,7 +5,7 @@ import Textarea from "../components/ui/Textarea";
 import SelectWithSearch, { type Option } from "../components/ui/SelectWithSearch";
 import cls from "../utils/cls";
 import type { Actor, Director, Genero, Plataforma, Movie } from "../types/Movie";
-import apiClient from "../services/apiClient";
+import apiClient, { BASE_URL } from "../services/apiClient";
 import { getMovieById } from "../services/movieService";
 import { updateMovie, type MoviePayload } from "../services/movieService"
 import toast from "react-hot-toast";
@@ -121,7 +121,7 @@ export default function EditMoviePage() {
         return () => { alive = false };
     }, [id, navigate]);
 
-    const currentPoster = useMemo(() => imagePreview ?? (movie?.poster.startsWith("/uploads") ? `http://localhost:8080${movie.poster}` : movie?.poster) ?? null, [imagePreview, movie]);
+    const currentPoster = useMemo(() => imagePreview ?? (movie?.poster.startsWith("/uploads") ? `${BASE_URL}${movie.poster}` : movie?.poster) ?? null, [imagePreview, movie]);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;

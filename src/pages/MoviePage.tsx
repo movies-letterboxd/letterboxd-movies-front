@@ -7,6 +7,7 @@ import { deleteMovieById, getMovieById } from "../services/movieService";
 import MovieSkeleton from "../components/movies/MovieSkeleton";
 import toast from "react-hot-toast";
 import ConfirmDialog from "../components/ui/ConfirmDialog";
+import { BASE_URL } from "../services/apiClient";
 
 export default function MoviePage() {
   const { id } = useParams()
@@ -78,7 +79,7 @@ export default function MoviePage() {
         {/* Poster + Plataformas */}
         <div className="col-span-1">
           <img
-            src={movie.poster.startsWith("/uploads") ? `http://localhost:8080${movie.poster}` : movie.poster}
+            src={movie.poster.startsWith("/uploads") ? `${BASE_URL}${movie.poster}` : movie.poster}
             alt={movie.titulo}
             loading="lazy"
             onError={(e) => {
