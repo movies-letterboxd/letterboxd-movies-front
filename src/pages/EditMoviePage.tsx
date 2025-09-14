@@ -10,6 +10,56 @@ import { getMovieById } from "../services/movieService";
 import { updateMovie, type MoviePayload } from "../services/movieService"
 import toast from "react-hot-toast";
 
+function EditMovieSkeleton() {
+
+    return (
+        <main className="mx-auto max-w-7xl px-4 pb-20 animate-pulse">
+            <section className="space-y-3 py-20 text-center">
+                <div className="h-8 w-60 bg-white/10 rounded mx-auto" />
+                <div className="h-4 w-96 bg-white/10 rounded mx-auto" />
+            </section>
+
+            <form className="flex flex-col gap-6">
+                <div className="grid grid-cols-3 gap-6 items-start">
+                    <div className="col-span-2 space-y-2">
+                        <div className="h-4 w-24 bg-white/10 rounded" />
+                        <div className="h-10 w-full bg-white/10 rounded" />
+                    </div>
+                    <div className="col-span-1">
+                        <div className="h-4 w-24 bg-white/10 rounded mb-2" />
+                        <div className="aspect-[2/3] w-full bg-white/10 rounded-lg" />
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-3 gap-6">
+                    <div className="h-10 bg-white/10 rounded" />
+                    <div className="h-10 bg-white/10 rounded" />
+                    <div className="h-10 bg-white/10 rounded" />
+                </div>
+
+                <div className="h-24 bg-white/10 rounded" />
+
+                <div className="grid grid-cols-3 gap-6">
+                    <div className="h-10 bg-white/10 rounded" />
+                    <div className="h-10 bg-white/10 rounded" />
+                    <div className="h-10 bg-white/10 rounded" />
+                </div>
+
+                <div className="grid grid-cols-[1fr_1fr_auto] gap-6">
+                    <div className="h-10 bg-white/10 rounded" />
+                    <div className="h-10 bg-white/10 rounded" />
+                    <div className="h-10 w-32 bg-white/10 rounded" />
+                </div>
+
+                <div className="flex gap-6">
+                    <div className="flex-1 h-10 bg-white/10 rounded" />
+                    <div className="flex-1 h-10 bg-white/10 rounded" />
+                </div>
+            </form>
+        </main>
+    );
+}
+
 function movieToForm(m: Movie) {
     return {
         titulo: m.titulo ?? "",
@@ -222,11 +272,7 @@ export default function EditMoviePage() {
     };
 
     if (loading) {
-        return (
-            <div className="max-w-6xl mx-auto p-6 py-20 text-gray-100">
-                <p className="opacity-70">Cargando edición…</p>
-            </div>
-        );
+        return <EditMovieSkeleton />
     }
 
     if (!movie) return null;

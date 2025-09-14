@@ -1,8 +1,21 @@
 import type { Movie } from "../../types/Movie";
 import MovieCard from "./MovieCard";
 import { MovieCardSkeleton } from "./MovieCardSkeleton";
+import MovieInactiveCard from "./MovieInactiveCard";
 
-export default function MoviesGrid({ movies, isLoading, handleDeleteMovie }: { movies: Movie[]; isLoading?: boolean; handleDeleteMovie: (id: number) => void }) {
+interface Props {
+  movies: Movie[];
+  isLoading?: boolean;
+  handleDeleteMovie: (id: number) => void;
+  isInactivePage?: boolean;
+}
+
+export default function MoviesGrid({ 
+  movies, 
+  isLoading, 
+  handleDeleteMovie,
+  isInactivePage = false
+}: Props) {
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
@@ -16,9 +29,9 @@ export default function MoviesGrid({ movies, isLoading, handleDeleteMovie }: { m
   return (
     <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
       {movies.map((m) => (
-        m.activa
-          ? <MovieCard key={m.id} movie={m} handleDeleteMovie={handleDeleteMovie} />
-          : null
+          isInactivePage
+            ? <MovieInactiveCard key={m.id} movie={m} handleDeleteMovie={handleDeleteMovie} />
+            : m.activa ? <MovieCard key={m.id} movie={m} handleDeleteMovie={handleDeleteMovie} /> : null
       ))}
     </div>
   )

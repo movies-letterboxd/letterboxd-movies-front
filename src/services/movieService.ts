@@ -40,9 +40,37 @@ export const getAllMovies = async () => {
   }
 }
 
+export const getAllInactiveMovies = async () => {
+  try {
+    const response = await apiClient.get("/peliculas/inactivas")
+    if (response.status === 200) {
+      return { success: true, data: response.data }
+    } else {
+      console.error("Error al obtener películas inactivas:", response.statusText)
+      return { success: false, error: response.statusText }
+    }
+  } catch (error: any) {
+    return { success: false, error: error.message }
+  }
+}
+
 export const deleteMovieById = async (id: number) => {
   try {
     const response = await apiClient.delete(`/peliculas/${id}/eliminar`)
+    if (response.status === 200) {
+      return { success: true }
+    } else {
+      console.error("Error al eliminar película:", response.statusText)
+      return { success: false, error: response.statusText }
+    }
+  } catch (error: any) {
+    return { success: false, error: error.message }
+  }
+}
+
+export const realDeleteMovieById = async (id: number) => {
+   try {
+    const response = await apiClient.delete(`/peliculas/${id}/eliminarCompleto`)
     if (response.status === 200) {
       return { success: true }
     } else {
@@ -104,5 +132,19 @@ export async function updateMovie(id: number, movieData: MoviePayload, imageFile
     }
   } catch (error: any) {
     return { success: false, error: error.message };
+  }
+}
+
+export const activateMovieById = async (id: number) => {
+  try {
+    const response = await apiClient.put(`/peliculas/${id}/activar`)
+    if (response.status === 200) {
+      return { success: true }
+    } else {
+      console.error("Error al activar película:", response.statusText)
+      return { success: false, error: response.statusText }
+    }
+  } catch (error: any) {
+    return { success: false, error: error.message }
   }
 }

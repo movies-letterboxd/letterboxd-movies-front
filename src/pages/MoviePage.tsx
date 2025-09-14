@@ -1,9 +1,9 @@
 // components/MovieDetail.tsx
 import { useEffect, useState } from "react"
 import { useParams, useNavigate, Link } from "react-router"
-import { Pencil, Star, Trash2 } from "lucide-react"
+import { Eye, EyeOff, Pencil, Star, Trash2 } from "lucide-react"
 import { type Movie } from "../types/Movie.d"
-import { deleteMovieById, getMovieById } from "../services/movieService";
+import { activateMovieById, deleteMovieById, getMovieById, realDeleteMovieById } from "../services/movieService";
 import MovieSkeleton from "../components/movies/MovieSkeleton";
 import toast from "react-hot-toast";
 import ConfirmDialog from "../components/ui/ConfirmDialog";
@@ -15,6 +15,7 @@ export default function MoviePage() {
   const [movie, setMovie] = useState<Movie | null>(null)
   const [loading, setLoading] = useState(false)
   const [openConfirm, setOpenConfirm] = useState(false)
+  const [openActivateConfirm, setOpenActivateConfirm] = useState(false)
   const [, setDeleting] = useState(false)
 
   const fetchPelicula = async () => {
@@ -26,12 +27,8 @@ export default function MoviePage() {
       const data = (res as any)?.data.data ?? res;
       setMovie(data as Movie);
     } catch (err: any) {
-      console.error("Error cargando película", err);
-
-      if (err?.response?.status === 404) {
-        toast.error("La película no existe.");
-        navigate("/movies");
-      }
+      toast.error("La película no existe.");
+      navigate("/movies");
     } finally {
       setLoading(false);
     }
@@ -50,15 +47,37 @@ export default function MoviePage() {
     try {
       setDeleting(true)
 
-      const response = await deleteMovieById(movie.id)
+      const response = movie.activa
+        ? await deleteMovieById(movie.id)
+        : await realDeleteMovieById(movie.id)
 
       if (response.success) {
-        navigate("/movies")
-        toast.success("Película eliminada con éxito.")
+        if (movie.activa) {
+          toast.success("Película desactivada con éxito.")
+          setMovie({ ...movie, activa: false })
+        } else {
+          toast.success("Película eliminada con éxito.")
+          navigate("/movies")
+        }
+
         setOpenConfirm(false)
       }
     } catch (error) {
       console.error("Error eliminando película", error)
+    } finally {
+      setDeleting(false)
+    }
+  }
+
+  const handleConfirmActivate = async () => {
+    try {
+      setDeleting(true)
+      const response = await activateMovieById(movie.id)
+      if (response.success) {
+        setMovie({ ...movie, activa: true })
+        setOpenActivateConfirm(false)
+        toast.success("Película activada con éxito.")
+      }
     } finally {
       setDeleting(false)
     }
@@ -69,10 +88,28 @@ export default function MoviePage() {
 
       <ConfirmDialog
         open={openConfirm}
-        title="Eliminar película"
-        description={`¿Seguro que querés eliminar “${movie.titulo}”? Esta acción no se puede deshacer.`}
+        title={
+          movie.activa
+            ? "Desactivar película"
+            : "Eliminar película"
+        }
+        description={
+          movie.activa
+            ? `¿Seguro que querés desactivar del catálogo “${movie.titulo}”? No podrá verse en el sitio hasta que la vuelvas a activar.`
+            : `¿Seguro que querés eliminar “${movie.titulo}”? Esta acción no se puede deshacer.`
+        }
         onCancel={() => setOpenConfirm(false)}
         onConfirm={handleConfirmDelete}
+        confirmText={movie.activa ? "Desactivar" : "Eliminar"}
+      />
+
+      <ConfirmDialog
+        open={openActivateConfirm}
+        title="Activar película"
+        description={`¿Seguro que querés activar “${movie.titulo}”? Esta acción permitirá que se vea en el sitio nuevamente.`}
+        onCancel={() => setOpenActivateConfirm(false)}
+        onConfirm={handleConfirmActivate}
+        confirmText="Activar"
       />
 
       <div className="grid md:grid-cols-3 gap-6">
@@ -118,8 +155,17 @@ export default function MoviePage() {
             <div className="flex items-center justify-between">
               <h1 className="text-4xl font-bold">{movie.titulo}</h1>
               <div className="flex gap-3">
+                {!movie.activa && (
+                  <button
+                    type="button"
+                    onClick={() => setOpenActivateConfirm(true)}
+                    className="rounded-md bg-green-600/90 p-2 text-sm font-medium text-white shadow hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400"
+                  >
+                    <Eye size={16} />
+                  </button>
+                )}
                 <button onClick={() => setOpenConfirm(true)} className="bg-red-600 p-2 rounded-lg hover:bg-red-600/80 transition">
-                  <Trash2 size={16} />
+                  {movie.activa ? <EyeOff size={16} /> : <Trash2 size={16} />}
                 </button>
                 <Link to={`/movies/${movie.id}/edit`} className="bg-blue-600 p-2 rounded-lg hover:bg-blue-600/80 transition">
                   <Pencil size={16} />

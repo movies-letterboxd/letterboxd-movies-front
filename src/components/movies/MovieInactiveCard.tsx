@@ -9,9 +9,9 @@ import Pill from "./Pill"
 import PlatformBadge from "./PlatformBadge"
 import { useState } from "react"
 import ConfirmDialog from "../ui/ConfirmDialog"
-import { deleteMovieById } from "../../services/movieService"
+import { activateMovieById, realDeleteMovieById } from "../../services/movieService"
 import toast from "react-hot-toast"
-import { EyeOff, Pencil } from "lucide-react"
+import { Eye, Pencil, Trash2 } from "lucide-react"
 import { BASE_URL } from "../../services/apiClient"
 
 interface Props {
@@ -19,14 +19,15 @@ interface Props {
   handleDeleteMovie: (id: number) => void
 }
 
-export default function MovieCard({ movie, handleDeleteMovie }: Props) {
+export default function MovieInactiveCard({ movie, handleDeleteMovie }: Props) {
   const navigate = useNavigate()
   const isAdmin = true
   const [openConfirm, setOpenConfirm] = useState(false)
+  const [openActivateConfirm, setOpenActivateConfirm] = useState(false)
   const [deleting, setDeleting] = useState(false)
 
   const handleMovieClick = (e: React.MouseEvent) => {
-    if (openConfirm || deleting) {
+    if (openConfirm || deleting || openActivateConfirm) {
       e.preventDefault()
       e.stopPropagation()
       return
@@ -40,14 +41,34 @@ export default function MovieCard({ movie, handleDeleteMovie }: Props) {
     setOpenConfirm(true)
   }
 
+  const handleActivateClick = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setOpenActivateConfirm(true)
+  }
+
   const handleConfirmDelete = async () => {
     try {
       setDeleting(true)
-      const response = await deleteMovieById(movie.id)
+      const response = await realDeleteMovieById(movie.id)
       if (response.success) {
         handleDeleteMovie(movie.id)
         setOpenConfirm(false)
-        toast.success("Película desactivada con éxito.")
+        toast.success("Película eliminada con éxito.")
+      }
+    } finally {
+      setDeleting(false)
+    }
+  }
+
+  const handleConfirmActivate = async () => {
+    try {
+      setDeleting(true)
+      const response = await activateMovieById(movie.id)
+      if (response.success) {
+        handleDeleteMovie(movie.id)
+        setOpenActivateConfirm(false)
+        toast.success("Película activada con éxito.")
       }
     } finally {
       setDeleting(false)
@@ -64,10 +85,18 @@ export default function MovieCard({ movie, handleDeleteMovie }: Props) {
         <div className="absolute right-2 top-2 z-20 flex items-center gap-2 p-2">
           <button
             type="button"
+            onClick={handleActivateClick}
+            className="rounded-md bg-green-600/90 p-2 text-sm font-medium text-white shadow hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400"
+          >
+            <Eye size={16} />
+          </button>
+
+          <button
+            type="button"
             onClick={handleDeleteClick}
             className="rounded-md bg-red-600/90 p-2 text-sm font-medium text-white shadow hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400"
           >
-            <EyeOff size={16} />
+            <Trash2 size={16} />
           </button>
 
           <Link
@@ -145,11 +174,19 @@ export default function MovieCard({ movie, handleDeleteMovie }: Props) {
 
       <ConfirmDialog
         open={openConfirm}
-        title="Desactivar película"
-        description={`¿Seguro que querés desactivar del catálogo “${movie.titulo}”? No podrá verse en el sitio hasta que la vuelvas a activar.`}
+        title="Eliminar película"
+        description={`¿Seguro que querés eliminar “${movie.titulo}”? Esta acción no se puede deshacer.`}
         onCancel={() => setOpenConfirm(false)}
         onConfirm={handleConfirmDelete}
-        confirmText="Desactivar"        
+      />
+
+      <ConfirmDialog
+        open={openActivateConfirm}
+        title="Activar película"
+        description={`¿Seguro que querés activar “${movie.titulo}”? Esta acción permitirá que se vea en el sitio nuevamente.`}
+        onCancel={() => setOpenActivateConfirm(false)}
+        onConfirm={handleConfirmActivate}
+        confirmText="Activar"
       />
 
       {deleting && (
