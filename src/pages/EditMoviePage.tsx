@@ -9,9 +9,9 @@ import apiClient, { BASE_URL } from "../services/apiClient";
 import { getMovieById } from "../services/movieService";
 import { updateMovie, type MoviePayload } from "../services/movieService"
 import toast from "react-hot-toast";
+import PersonModal from "../components/movies/PersonModal"
 
 function EditMovieSkeleton() {
-
     return (
         <main className="mx-auto max-w-7xl px-4 pb-20 animate-pulse">
             <section className="space-y-3 py-20 text-center">
@@ -107,7 +107,13 @@ export default function EditMoviePage() {
     const [platformCache, setPlatformCache] = useState<Record<number, string>>({});
     const [peopleCache, setPeopleCache] = useState<Record<number, string>>({});
 
-    const [newCast, setNewCast] = useState<{ personaId: number | null; personaje: string }>({ personaId: null, personaje: "" });
+    const [newCast, setNewCast] = useState<{ personaId: number | null; personaje: string }>({
+        personaId: null,
+        personaje: "",
+    })
+
+    const [isActorModalOpen, setIsActorModalOpen] = useState(false);
+    const [isDirectorModalOpen, setIsDirectorModalOpen] = useState(false);
 
     useEffect(() => {
         let alive = true;
@@ -163,6 +169,8 @@ export default function EditMoviePage() {
                 if (err?.response?.status === 404) {
                     toast.error("La película no existe.")
                     navigate("/movies");
+                } else {
+                    toast.error("No se pudieron cargar datos");
                 }
             } finally {
                 if (alive) setLoading(false);
@@ -179,7 +187,7 @@ export default function EditMoviePage() {
     };
 
     const handleSelectChange = (name: string, option: Option | null) => {
-        setForm(prev => ({ ...prev, [name]: option?.value ?? "" }));
+        setForm((prev) => ({ ...prev, [name]: option?.value ?? "" }))
     };
 
     const handleMultipleSelectChange = (name: "generosIds" | "plataformasIds", option: Option | null) => {
@@ -205,7 +213,7 @@ export default function EditMoviePage() {
         if (option && typeof idNum === "number" && !Number.isNaN(idNum)) {
             setPeopleCache(prev => ({ ...prev, [idNum]: option.label }));
         }
-        setNewCast(prev => ({ ...prev, personaId: idNum }));
+        setNewCast((prev) => ({ ...prev, personaId: idNum }));
     };
 
     const handleElencoRoleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -255,7 +263,7 @@ export default function EditMoviePage() {
                 directorId: Number(form.directorId),
                 generosIds: form.generosIds,
                 plataformasIds: form.plataformasIds,
-                elenco: form.elenco.map(e => ({ personaId: e.personaId, personaje: e.personaje, orden: e.orden })),
+                elenco: form.elenco.map((e) => ({ personaId: e.personaId, personaje: e.personaje, orden: e.orden })),
             };
 
             const res = await updateMovie(Number(id), payload, imageInput);
@@ -263,22 +271,39 @@ export default function EditMoviePage() {
             if ((res as any)?.success) {
                 toast.success("Película actualizada con éxito")
                 navigate(`/movies/${id}`);
+            } else {
+                toast.error("No se pudo actualizar");
             }
         } catch (err: any) {
             console.error("Error actualizando película", err);
             const msg = err?.response?.data || err?.message || "Error desconocido";
-            toast.error(`No se pudo actualizar: ${msg}`)
+            toast.error(`No se pudo actualizar: ${msg}`);
         }
     };
 
     if (loading) {
-        return <EditMovieSkeleton />
+        return <EditMovieSkeleton />;
     }
 
     if (!movie) return null;
 
-    const getGeneroLabel = (id: number) => genreCache[id] ?? generoOptions.find(o => Number(o.value) === id)?.label ?? `Género ${id}`;
-    const getPlataformaLabel = (id: number) => platformCache[id] ?? plataformaOptions.find(o => Number(o.value) === id)?.label ?? `Plataforma ${id}`;
+    const getGeneroLabel = (id: number) =>
+        genreCache[id] ?? generoOptions.find((o) => Number(o.value) === id)?.label ?? `Género ${id}`;
+    const getPlataformaLabel = (id: number) =>
+        platformCache[id] ?? plataformaOptions.find((o) => Number(o.value) === id)?.label ?? `Plataforma ${id}`;
+
+    const handleDirectorCreated = (created: { id: number; name: string }) => {
+        setDirectorOptions((prev) => [...prev, { label: created.name, value: String(created.id) }]);
+        setForm((prev) => ({ ...prev, directorId: String(created.id) }));
+        toast.success("Director creado y seleccionado");
+    };
+
+    const handleActorCreated = (created: { id: number; name: string }) => {
+        setPeopleOptions((prev) => [...prev, { label: created.name, value: String(created.id) }]);
+        setPeopleCache((prev) => ({ ...prev, [created.id]: created.name }));
+        setNewCast((prev) => ({ ...prev, personaId: created.id }));
+        toast.success("Actor creado y listo para agregar al elenco");
+    };
 
     return (
         <main className="mx-auto max-w-7xl px-4 pb-20">
@@ -290,7 +315,9 @@ export default function EditMoviePage() {
             <form onSubmit={onSubmit} className="flex flex-col gap-6">
                 <div className="grid grid-cols-3 gap-6 items-start">
                     <div className="col-span-2">
-                        <label htmlFor="image" className="block text-sm font-medium text-white mb-1">Imagen</label>
+                        <label htmlFor="image" className="block text-sm font-medium text-white mb-1">
+                            Imagen
+                        </label>
                         <input
                             type="file"
                             id="image"
@@ -302,7 +329,19 @@ export default function EditMoviePage() {
                         {imageInput && (
                             <div className="mt-2 text-sm text-white/70 flex items-center gap-3">
                                 <span>Seleccionada: {imageInput.name}</span>
-                                <button type="button" className="px-2 py-1 rounded bg-white/10 hover:bg-white/20" onClick={() => { setImageInput(null); setImagePreview(null); }}>Quitar</button>
+                                <button
+                                    type="button"
+                                    className="px-2 py-1 rounded bg-white/10 hover:bg-white/20"
+                                    onClick={() => {
+                                        if (imagePreview) URL.revokeObjectURL(imagePreview);
+                                        setImageInput(null);
+                                        setImagePreview(null);
+                                        const input = document.getElementById("image") as HTMLInputElement | null;
+                                        if (input) input.value = "";
+                                    }}
+                                >
+                                    Quitar
+                                </button>
                             </div>
                         )}
                     </div>
@@ -310,9 +349,14 @@ export default function EditMoviePage() {
                         <p className="text-sm text-white/70 mb-2">Vista previa</p>
                         <div className="aspect-[2/3] w-full overflow-hidden rounded-lg bg-white/5 border border-white/10">
                             {currentPoster ? (
-                                <img src={currentPoster} onError={(e) => {
-                                    (e.currentTarget as HTMLImageElement).src = "https://placehold.co/500x750?text=Poster"
-                                }} alt="Poster" className="w-full h-full object-cover" />
+                                <img
+                                    src={currentPoster}
+                                    onError={(e) => {
+                                        (e.currentTarget as HTMLImageElement).src = "https://placehold.co/500x750?text=Poster";
+                                    }}
+                                    alt="Poster"
+                                    className="w-full h-full object-cover"
+                                />
                             ) : (
                                 <div className="w-full h-full grid place-content-center text-white/40">Sin imagen</div>
                             )}
@@ -321,18 +365,54 @@ export default function EditMoviePage() {
                 </div>
 
                 <div className="grid grid-cols-3 gap-6">
-                    <Input name="titulo" label="Título" value={form.titulo} onChange={handleInputChange} placeholder="Título de la película" />
-                    <Input name="duracionMinutos" type="number" label="Duración" value={form.duracionMinutos} onChange={handleInputChange} placeholder="Duración en minutos" />
-                    <Input name="fechaEstreno" type="date" label="Fecha estreno" value={form.fechaEstreno} onChange={handleInputChange} placeholder="Fecha de estreno" />
+                    <Input
+                        name="titulo"
+                        label="Título"
+                        value={form.titulo}
+                        onChange={handleInputChange}
+                        placeholder="Título de la película"
+                    />
+                    <Input
+                        name="duracionMinutos"
+                        type="number"
+                        label="Duración"
+                        value={form.duracionMinutos}
+                        onChange={handleInputChange}
+                        placeholder="Duración en minutos"
+                    />
+                    <Input
+                        name="fechaEstreno"
+                        type="date"
+                        label="Fecha estreno"
+                        value={form.fechaEstreno}
+                        onChange={handleInputChange}
+                        placeholder="Fecha de estreno"
+                    />
                 </div>
 
-                <Textarea name="sinopsis" label="Sinopsis" value={form.sinopsis} onChange={handleInputChange} placeholder="Sinopsis de película" />
+                <Textarea
+                    name="sinopsis"
+                    label="Sinopsis"
+                    value={form.sinopsis}
+                    onChange={handleInputChange}
+                    placeholder="Sinopsis de película"
+                />
 
                 <div className="grid grid-cols-3 gap-6">
                     <div>
+                        <div className="mb-2 flex items-end justify-between">
+                            <label className="text-sm font-medium text-white">Director</label>
+                            <button
+                                type="button"
+                                onClick={() => setIsDirectorModalOpen(true)}
+                                className="text-sm rounded-md bg-white/10 px-2 py-0.5 text-white hover:bg-white/20"
+                            >
+                                Nuevo director
+                            </button>
+                        </div>
                         <SelectWithSearch
                             name="directorId"
-                            label="Director"
+                            label=""
                             value={form.directorId}
                             onChange={(option) => handleSelectChange("directorId", option)}
                             placeholder="Seleccionar director"
@@ -350,8 +430,11 @@ export default function EditMoviePage() {
                             options={generoOptions}
                         />
                         <div className="mt-2 flex flex-wrap gap-2">
-                            {form.generosIds.map(idNum => (
-                                <span key={idNum} className="bg-white/10 text-white px-2 py-1 rounded-md text-sm flex items-center gap-2">
+                            {form.generosIds.map((idNum) => (
+                                <span
+                                    key={idNum}
+                                    className="bg-white/10 text-white px-2 py-1 rounded-md text-sm flex items-center gap-2"
+                                >
                                     {getGeneroLabel(idNum)}
                                     <button
                                         type="button"
@@ -375,8 +458,11 @@ export default function EditMoviePage() {
                             options={plataformaOptions}
                         />
                         <div className="mt-2 flex flex-wrap gap-2">
-                            {form.plataformasIds.map(idNum => (
-                                <span key={idNum} className="bg-white/10 text-white px-2 py-1 rounded-md text-sm flex items-center gap-2">
+                            {form.plataformasIds.map((idNum) => (
+                                <span
+                                    key={idNum}
+                                    className="bg-white/10 text-white px-2 py-0.5 rounded-md text-sm flex items-center gap-2"
+                                >
                                     {getPlataformaLabel(idNum)}
                                     <button
                                         type="button"
@@ -393,27 +479,45 @@ export default function EditMoviePage() {
 
                 <div className="flex flex-col gap-4">
                     <div className="grid grid-cols-[1fr_1fr_auto] items-end gap-6">
-                        <SelectWithSearch
-                            className="w-full"
-                            name="elenco"
-                            label="Elenco"
-                            value={newCast.personaId}
-                            onChange={handleElencoSelect}
-                            placeholder="Seleccionar persona"
-                            options={peopleOptions}
-                        />
+                        <div>
+                            <div className="mb-2 flex items-end justify-between">
+                                <label className="text-sm font-medium text-white">Elenco</label>
+                                <button
+                                    type="button"
+                                    onClick={() => setIsActorModalOpen(true)}
+                                    className="text-sm rounded-md bg-white/10 px-2 py-1 text-white hover:bg-white/20"
+                                >
+                                    Nuevo actor
+                                </button>
+                            </div>
+                            <SelectWithSearch
+                                className="w-full"
+                                name="elenco"
+                                label=""
+                                value={newCast.personaId}
+                                onChange={handleElencoSelect}
+                                placeholder="Seleccionar persona"
+                                options={peopleOptions}
+                            />
+                        </div>
 
-                        <Input name="rol" label="Rol" value={newCast.personaje} onChange={handleElencoRoleChange} placeholder="Rol en la película" />
+                        <Input
+                            name="rol"
+                            label="Rol"
+                            value={newCast.personaje}
+                            onChange={handleElencoRoleChange}
+                            placeholder="Rol en la película"
+                        />
 
                         <button
                             type="button"
                             onClick={handleAddElenco}
-                            disabled={newCast.personaId == null || newCast.personaje.trim() === ''}
+                            disabled={newCast.personaId == null || newCast.personaje.trim() === ""}
                             className={cls(
                                 "h-10 px-4 rounded-md text-white font-semibold transition",
-                                newCast.personaId == null || newCast.personaje.trim() === ''
+                                newCast.personaId == null || newCast.personaje.trim() === ""
                                     ? "bg-blue-500/60 cursor-not-allowed"
-                                    : "bg-blue-500 hover:bg-blue-500/80"
+                                    : "bg-blue-500 hover:bg-blue-500/80",
                             )}
                         >
                             Agregar/Actualizar
@@ -423,9 +527,14 @@ export default function EditMoviePage() {
                     {form.elenco.length > 0 && (
                         <ul className="space-y-2">
                             {form.elenco.map((m) => (
-                                <li key={m.personaId} className="flex items-center justify-between rounded-md bg-white/10 px-3 py-2">
+                                <li
+                                    key={m.personaId}
+                                    className="flex items-center justify-between rounded-md bg-white/10 px-3 py-2"
+                                >
                                     <div className="text-white">
-                                        <span className="font-medium">{peopleCache[m.personaId] ?? `Persona ${m.personaId}`}</span>
+                                        <span className="font-medium">
+                                            {peopleCache[m.personaId] ?? `Persona ${m.personaId}`}
+                                        </span>
                                         <span className="text-white/70">{` — ${m.personaje}`}</span>
                                         <span className="ml-2 text-white/50">{`#${m.orden}`}</span>
                                     </div>
@@ -450,7 +559,7 @@ export default function EditMoviePage() {
                         disabled={!canSubmit}
                         className={cls(
                             "bg-green-500 flex-1 px-4 py-2 rounded-md text-white font-semibold hover:bg-green-500/80 transition",
-                            !canSubmit ? "opacity-70 cursor-not-allowed" : "cursor-pointer"
+                            !canSubmit ? "opacity-70 cursor-not-allowed" : "cursor-pointer",
                         )}
                     >
                         Guardar cambios
@@ -464,6 +573,19 @@ export default function EditMoviePage() {
                     </button>
                 </div>
             </form>
+
+            <PersonModal
+                isOpen={isActorModalOpen}
+                type="actor"
+                onClose={() => setIsActorModalOpen(false)}
+                onCreated={handleActorCreated}
+            />
+            <PersonModal
+                isOpen={isDirectorModalOpen}
+                type="director"
+                onClose={() => setIsDirectorModalOpen(false)}
+                onCreated={handleDirectorCreated}
+            />
         </main>
     );
 }

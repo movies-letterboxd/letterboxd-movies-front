@@ -9,6 +9,7 @@ import type { Actor, Director, Genero, Plataforma } from "../types/Movie"
 import { createMovie } from "../services/movieService"
 import toast from "react-hot-toast"
 import { Link, useNavigate } from "react-router"
+import PersonModal from "../components/movies/PersonModal"
 
 export default function NewMoviePage() {
   const navigate = useNavigate()
@@ -36,6 +37,9 @@ export default function NewMoviePage() {
   const [platformCache, setPlatformCache] = useState<Record<number, string>>({})
   const [peopleCache, setPeopleCache] = useState<Record<number, string>>({})
   const [newCast, setNewCast] = useState<{ personaId: number | null; personaje: string }>({ personaId: null, personaje: '' })
+
+  const [isActorModalOpen, setIsActorModalOpen] = useState(false)
+  const [isDirectorModalOpen, setIsDirectorModalOpen] = useState(false)
 
   useEffect(() => {
     const fetchOptions = async () => {
@@ -199,6 +203,18 @@ export default function NewMoviePage() {
     return value !== '' && value !== null && value !== undefined
   })
 
+  const handleDirectorCreated = (created: { id: number; name: string }) => {
+    setDirectorOptions(prev => [...prev, { label: created.name, value: String(created.id) }])
+    setNewMovieState(prev => ({ ...prev, directorId: String(created.id) }))
+  }
+
+  const handleActorCreated = (created: { id: number; name: string }) => {
+    setPeopleOptions(prev => [...prev, { label: created.name, value: String(created.id) }])
+    setPeopleCache(prev => ({ ...prev, [created.id]: created.name }))
+    setNewCast(prev => ({ ...prev, personaId: created.id }))
+    toast.success("Actor agregado a la lista")
+  }
+
   return (
     <main className="mx-auto max-w-7xl px-4 pb-20">
       <section className="space-y-3 py-20 text-center">
@@ -256,9 +272,18 @@ export default function NewMoviePage() {
 
         <div className="grid grid-cols-3 gap-6">
           <div>
+            <div className="mb-2 flex items-end justify-between">
+              <label className="text-sm font-medium text-white">Director</label>
+              <button
+                type="button"
+                onClick={() => setIsDirectorModalOpen(true)}
+                className="text-sm rounded-md bg-white/10 px-2 py-0.5 text-white hover:bg-white/20"
+              >
+                Nuevo director
+              </button>
+            </div>
             <SelectWithSearch
               name="directorId"
-              label="Director"
               value={newMovieState.directorId}
               onChange={(option) => handleSelectChange("directorId", option)}
               placeholder="Seleccionar director"
@@ -318,16 +343,28 @@ export default function NewMoviePage() {
         </div>
 
         <div className="flex flex-col gap-4">
-          <div className="grid grid-cols-[1fr_1fr_auto] items-end gap-6">
-            <SelectWithSearch
-              className="w-full"
-              name="elenco"
-              label="Elenco"
-              value={newCast.personaId}
-              onChange={handleElencoSelect}
-              placeholder="Seleccionar persona"
-              options={peopleOptions}
-            />
+          <div className="grid grid-cols-[1fr_auto_auto] items-end gap-6">
+            <div>
+              <div className="mb-2 flex items-end justify-between">
+                <label className="text-sm font-medium text-white">Elenco</label>
+                <button
+                  type="button"
+                  onClick={() => setIsActorModalOpen(true)}
+                  className="text-sm rounded-md bg-white/10 px-2 py-1 text-white hover:bg-white/20"
+                >
+                  Nuevo actor
+                </button>
+              </div>
+              <SelectWithSearch
+                className="w-full"
+                name="elenco"
+                label=""
+                value={newCast.personaId}
+                onChange={handleElencoSelect}
+                placeholder="Seleccionar persona"
+                options={peopleOptions}
+              />
+            </div>
 
             <Input name="rol" label="Rol" value={newCast.personaje} onChange={handleElencoRoleChange} placeholder="Rol en la película" />
 
@@ -386,6 +423,19 @@ export default function NewMoviePage() {
           </Link>
         </div>
       </form>
+
+      <PersonModal
+        isOpen={isActorModalOpen}
+        type="actor"
+        onClose={() => setIsActorModalOpen(false)}
+        onCreated={handleActorCreated}
+      />
+      <PersonModal
+        isOpen={isDirectorModalOpen}
+        type="director"
+        onClose={() => setIsDirectorModalOpen(false)}
+        onCreated={handleDirectorCreated}
+      />
     </main>
   )
 }

@@ -1,4 +1,3 @@
-// components/MovieDetail.tsx
 import { useEffect, useState } from "react"
 import { useParams, useNavigate, Link } from "react-router"
 import { Eye, EyeOff, Pencil, Star, Trash2 } from "lucide-react"
@@ -23,7 +22,6 @@ export default function MoviePage() {
     setLoading(true);
     try {
       const res = await getMovieById(Number(id));
-      // Soportamos service que devuelve { data } o el objeto directamente
       const data = (res as any)?.data.data ?? res;
       setMovie(data as Movie);
     } catch (err: any) {
@@ -113,7 +111,6 @@ export default function MoviePage() {
       />
 
       <div className="grid md:grid-cols-3 gap-6">
-        {/* Poster + Plataformas */}
         <div className="col-span-1">
           <img
             src={movie.poster.startsWith("/uploads") ? `${BASE_URL}${movie.poster}` : movie.poster}
@@ -125,7 +122,6 @@ export default function MoviePage() {
             className="w-full h-auto rounded-lg shadow-lg"
           />
 
-          {/* Dónde ver */}
           <div className="mt-4">
             <h2 className="text-lg font-semibold mb-2">Dónde ver</h2>
             <div className="flex flex-wrap gap-3">
@@ -148,10 +144,8 @@ export default function MoviePage() {
           </div>
         </div>
 
-        {/* Info */}
         <div className="col-span-2 flex flex-col justify-between">
           <div>
-            {/* Encabezado: título + botones */}
             <div className="flex items-center justify-between">
               <h1 className="text-4xl font-bold">{movie.titulo}</h1>
               <div className="flex gap-3">
@@ -178,7 +172,6 @@ export default function MoviePage() {
               <span className="text-gray-200">{movie.director?.nombre}</span>
             </p>
 
-            {/* Rating */}
             <div className="flex items-center gap-1 mt-3">
               {Array.from({ length: 5 }).map((_, i) => (
                 <Star
@@ -190,10 +183,9 @@ export default function MoviePage() {
               <span className="ml-2 text-sm text-gray-400">{0}/5</span>
             </div>
 
-            {/* Sinopsis */}
             <p className="mt-4 text-gray-200 leading-relaxed">{movie.sinopsis}</p>
 
-            {/* Géneros */}
+
             <div className="mt-6">
               <h2 className="text-xl font-semibold mb-2">Géneros</h2>
               <hr className="border-gray-500 mb-3" />
@@ -210,7 +202,6 @@ export default function MoviePage() {
             </div>
           </div>
 
-          {/* Elenco */}
           <div className="col-span-3 mt-8">
             <h2 className="text-2xl font-semibold mb-4">Elenco</h2>
 
@@ -222,7 +213,7 @@ export default function MoviePage() {
                 >
                   {actor.imagenPersona && (
                     <img
-                      src={actor.imagenPersona}
+                      src={actor.imagenPersona.startsWith("/uploads") ? `${BASE_URL}${actor.imagenPersona}` : actor.imagenPersona}
                       alt={actor.nombrePersona}
                       className="w-24 h-24 object-cover rounded-full mb-2"
                     />
