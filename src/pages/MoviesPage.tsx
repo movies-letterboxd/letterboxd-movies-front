@@ -4,7 +4,7 @@ import type { Movie } from "../types/Movie";
 import { getAllMovies } from "../services/movieService";
 import Input from "../components/ui/Input";
 import { Link } from "react-router";
-import { CirclePlus, Plus } from "lucide-react";
+import { CirclePlus } from "lucide-react";
 
 export default function MoviesPage() {
   const [movies, setMovies] = useState<Movie[]>([])
