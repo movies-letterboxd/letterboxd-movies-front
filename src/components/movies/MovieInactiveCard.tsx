@@ -102,7 +102,7 @@ export default function MovieInactiveCard({ movie, handleDeleteMovie }: Props) {
           <Link
             to={`/movies/${movie.id}/edit`}
             onClick={(e) => e.stopPropagation()}
-            className="rounded-md bg-blue-600/90 p-2 text-sm font-medium text-white shadow hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="rounded-md cursor-default bg-blue-600/90 p-2 text-sm font-medium text-white shadow hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
           >
             <Pencil size={16} />
           </Link>

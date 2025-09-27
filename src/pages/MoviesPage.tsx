@@ -3,6 +3,8 @@ import MoviesGrid from "../components/movies/MoviesGrid"
 import type { Movie } from "../types/Movie";
 import { getAllMovies } from "../services/movieService";
 import Input from "../components/ui/Input";
+import { Link } from "react-router";
+import { CirclePlus, Plus } from "lucide-react";
 
 export default function MoviesPage() {
   const [movies, setMovies] = useState<Movie[]>([])
@@ -60,14 +62,20 @@ export default function MoviesPage() {
         <p className="text-white/70">Descubrí las mejores películas acá.</p>
       </section>
 
-      <div className="pb-5">
+      <div className="pb-5 flex items-start gap-6">
         <Input
+          className="flex-1"
           type="text"
           placeholder="Buscar película..."
           name="search"
           value={searchTerm}
           onChange={handleSearchChange}
         />
+
+        <Link to="/new-movie" className="bg-blue-600 px-4 py-2 rounded-md text-white font-semibold hover:bg-blue-600/80 transition cursor-pointer text-center flex items-center gap-2">
+          <CirclePlus size={16} />
+          Película
+        </Link>
       </div>
 
       <MoviesGrid 
