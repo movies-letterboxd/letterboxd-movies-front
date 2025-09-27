@@ -4,6 +4,9 @@
 @layer base {
   html {
     font-family: 'Montserrat', sans-serif;
+    scrollbar-width: thin;
+    scrollbar-gutter: stable;
+    background-color: #0f1d2b;
   }
 }
 
