@@ -28,6 +28,12 @@ export default function Header() {
           >
             Películas Inactivas
           </NavLink>
+          <NavLink
+            className={({ isActive }) => `text-[#90A1B9] hover:text-[#336ab7] hover:transition-colors font-bold uppercase ${isActive ? 'text-[#336ab7]' : ''}`}
+            to="/attributes"
+          >
+            Atributos
+          </NavLink>
         </ol>
 
         <button className="bg-[#FF0035] p-3 rounded-full md:block hidden">
