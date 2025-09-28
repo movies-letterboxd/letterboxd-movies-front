@@ -6,9 +6,11 @@ import { toast } from "react-hot-toast"
 import ConfirmDialog from "../components/ui/ConfirmDialog"
 import PlatformModal from "../components/attributes/PlatformModal"
 import { BASE_URL } from "../services/apiClient"
+import Input from "../components/ui/Input"
 
 export default function PlatformsPage() {
   const [platforms, setPlatforms] = useState<Plataforma[]>([])
+  const [search, setSearch] = useState("")
   const [isLoading, setIsLoading] = useState(true)
 
   const [confirm, setConfirm] = useState<{ open: boolean; id: number | null; name: string }>({
@@ -74,10 +76,35 @@ export default function PlatformsPage() {
 
   const baseCell = "px-4 py-3"
 
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setSearch(e.target.value.toLowerCase())
+
+    if (e.target.value === "") {
+      fetchPlatforms()
+    } else {
+      const filteredPlatforms = platforms.filter(
+        (platform) => (
+          platform.nombre.toLowerCase().includes(e.target.value.toLowerCase())
+        )
+      )
+      
+      setPlatforms(filteredPlatforms)
+    }
+  }
+
   return (
     <>
-      <div className="mb-4 flex items-center justify-between">
+      <div className="mb-4 flex items-center justify-between gap-6">
         <h2 className="text-white text-xl font-semibold">Plataformas</h2>
+
+        <Input
+          className="flex-1 text-sm"
+          placeholder="Buscar plataformas"
+          name="search"
+          value={search}
+          onChange={handleSearchChange}
+        />
+
         <button
           type="button"
           onClick={() => setCreateOpen(true)}

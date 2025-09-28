@@ -5,9 +5,11 @@ import { toast } from "react-hot-toast"
 import ConfirmDialog from "../components/ui/ConfirmDialog"
 import GenreModal from "../components/attributes/GenreModal"
 import { deleteGenre, getAllGenres } from "../services/genreService"
+import Input from "../components/ui/Input"
 
 export default function GenresPage() {
   const [genres, setGenres] = useState<Genero[]>([])
+  const [search, setSearch] = useState("")
   const [isLoading, setIsLoading] = useState(true)
 
   const [confirm, setConfirm] = useState<{ open: boolean; id: number | null; name: string }>({
@@ -73,10 +75,35 @@ export default function GenresPage() {
 
   const baseCell = "px-4 py-3"
 
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setSearch(e.target.value.toLowerCase())
+
+    if (e.target.value === "") {
+      fetchGenres()
+    } else {
+      const filteredGenres = genres.filter(
+        (genre) => (
+          genre.nombre.toLowerCase().includes(e.target.value.toLowerCase())
+        )
+      )
+      
+      setGenres(filteredGenres)
+    }
+  }
+
   return (
     <>
-      <div className="mb-4 flex items-center justify-between">
+      <div className="mb-4 flex items-center justify-between gap-6">
         <h2 className="text-white text-xl font-semibold">Géneros</h2>
+
+        <Input
+          className="flex-1 text-sm"
+          placeholder="Buscar géneros"
+          name="search"
+          value={search}
+          onChange={handleSearchChange}
+        />
+
         <button
           type="button"
           onClick={() => setCreateOpen(true)}
