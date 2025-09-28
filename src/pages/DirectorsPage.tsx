@@ -6,9 +6,11 @@ import ConfirmDialog from "../components/ui/ConfirmDialog"
 import { BASE_URL } from "../services/apiClient"
 import DirectorModal from "../components/attributes/DirectorModal"
 import { deleteDirector, getAllDirectors } from "../services/directorService"
+import Input from "../components/ui/Input"
 
 export default function DirectorsPage() {
   const [directors, setDirectors] = useState<Director[]>([])
+  const [search , setSearch] = useState("")
   const [isLoading, setIsLoading] = useState(true)
 
   const [confirm, setConfirm] = useState<{ open: boolean; id: number | null; name: string }>({
@@ -74,10 +76,37 @@ export default function DirectorsPage() {
 
   const baseCell = "px-4 py-3"
 
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setSearch(e.target.value.toLowerCase())
+
+    if (e.target.value === "") {
+      fetchDirectors()
+    } else {
+      const filteredDirectors = directors.filter(
+        (director) => (
+          director.nombre.toLowerCase().includes(e.target.value.toLowerCase())
+        )
+      )
+      
+      setDirectors(filteredDirectors)
+    }
+  }
+
   return (
     <>
-      <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-white text-xl font-semibold">Directores</h2>
+      <div className="mb-4 flex items-center justify-between gap-6">
+        <h2 className="text-white text-xl font-semibold">
+          Directores
+        </h2>
+
+        <Input
+          className="flex-1 text-sm"
+          placeholder="Buscar director"
+          name="search"
+          value={search}
+          onChange={handleSearchChange}
+        />
+
         <button
           type="button"
           onClick={() => setCreateOpen(true)}
