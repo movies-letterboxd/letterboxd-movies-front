@@ -3,8 +3,7 @@ name: Deploy Frontend
 on:
   push:
     branches:
-      - main
-      - deploy-front
+      - dev
 
 permissions:
   id-token: write
@@ -19,8 +18,8 @@ jobs:
 
     env:
       AWS_REGION: us-east-2
-      S3_BUCKET: movies-letterbox
-      CF_DIST_ID: E1COKQVBIR9BQY
+      S3_BUCKET: movies-letterbox-dev
+      CF_DIST_ID: E35UFKQ2KHR6U1
 
     steps:
       - name: Checkout
@@ -52,7 +51,7 @@ jobs:
       - name: Configure AWS (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::277707101441:role/Movies-letterbox-Front
+          role-to-assume: arn:aws:iam::277707101441:role/Movies-letterbox-Front-dev
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Deploy to S3 (CLI)
