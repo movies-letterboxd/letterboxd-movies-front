@@ -1,7 +1,14 @@
 import { Gamepad2, LogOut } from "lucide-react";
 import { NavLink } from "react-router";
+import { useAuthContext } from "../contexts/AuthContext";
 
 export default function Header() {
+  const { logout } = useAuthContext()
+
+  const handleLogout = () => {
+    logout()
+  }
+
   return (
     <header className="bg-[#121C2E] py-5 px-10 sm:px-20 flex items-center justify-between sticky top-0 z-[999]">
       <div className="flex items-center gap-2">
@@ -40,7 +47,7 @@ export default function Header() {
           <Gamepad2 size={32} />
         </button>
 
-        <button className="bg-[#16E0D4] p-[10px] rounded-xl hover:bg-[#16e0d2d1] hover:transition-colors">
+        <button onClick={handleLogout} className="bg-[#16E0D4] p-[10px] rounded-xl hover:bg-[#16e0d2d1] hover:transition-colors">
           <LogOut size={20} color="black" />
         </button>
       </div>
