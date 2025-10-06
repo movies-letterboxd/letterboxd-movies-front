@@ -5,7 +5,7 @@ export const BASE_URL = 'https://movies.ufodevelopment.com';
 const apiClient = axios.create({
   baseURL: `${BASE_URL}/api`,
   headers:{
-      "Content-Type": "application/json", 
+    "Content-Type": "application/json", 
   },
 });
 
@@ -19,6 +19,5 @@ apiClient.interceptors.request.use(
   },
   (error) => Promise.reject(error)
 );
-
 
 export default apiClient;
