@@ -1,10 +1,27 @@
 import { createContext, useContext, useEffect, useState } from "react";
+import { decodeToken, loginUser, type LoginUserProps } from "../services/authService";
+
+type UserStorage = {
+  access_token: string
+  profile: {
+    email: string
+    expiresAt: string
+    full_name: string
+    permissions: string[]
+    role: string
+    user_id: number
+  } | null
+} | null
 
 type AuthContextType = {
+  user: UserStorage
   status: 'checking' | 'authenticated' | 'not-authenticated'
-  login: () => Promise<void>
+  permissions: string[]
+  login: (data: LoginUserProps) => Promise<void>
   logout: () => Promise<void>
 }
+
+const USER_STORAGE_KEY = 'user'
 
 export const AuthContext = createContext<AuthContextType | null>(null)
 
@@ -16,25 +33,73 @@ export const useAuthContext = () => {
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [status, setStatus] = useState<AuthContextType['status']>('checking')
+  const [user, setUser] = useState<UserStorage>(
+    window.localStorage.getItem(USER_STORAGE_KEY) 
+      ? JSON.parse(window.localStorage.getItem(USER_STORAGE_KEY) as string) 
+      : null
+  )
 
-  const validateToken = async () => {
-    setStatus('not-authenticated')
-  }
-
-  const login = async () => {
-    setStatus('authenticated')
-  }
-
-  const logout = async () => {
-    setStatus('not-authenticated')
-  }
+  const permissions = user?.profile?.permissions || []
 
   useEffect(() => {
     validateToken()
   }, [])
 
+  const validateToken = async () => {
+    if (user?.access_token) {
+      setStatus('authenticated')
+      return
+    }
+
+    logout()
+  }
+
+  const login = async ({ username, password }: LoginUserProps) => {
+    setStatus('checking')
+    const result = await loginUser({ username, password })
+    
+    if (result.success) {
+      const response = JSON.parse(result.data.token)
+
+      const dataToSave: UserStorage = {
+        access_token: response.access_token,
+        profile: null
+      }
+
+      window.localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(dataToSave))
+      const decoded = await decodeToken()
+
+      if (!decoded.success) {
+        logout()
+        return
+      }
+      
+      dataToSave.profile = decoded.data
+      window.localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(dataToSave))
+
+      setUser(dataToSave)
+      setStatus('authenticated')
+    } else {
+      logout()
+    }
+  }
+
+  const logout = async () => {
+    window.localStorage.removeItem(USER_STORAGE_KEY)
+    setStatus('not-authenticated')
+    setUser(null)
+  }
+
   return (
-    <AuthContext.Provider value={{ status, logout, login }}>
+    <AuthContext.Provider 
+      value={{ 
+        user, 
+        status, 
+        permissions, 
+        logout, 
+        login 
+      }}
+    >
       {children}
     </AuthContext.Provider>
   )

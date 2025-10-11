@@ -3,13 +3,13 @@ import { useAuthContext } from "../contexts/AuthContext"
 import { LogIn } from "lucide-react"
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("")
+  const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
   const { login } = useAuthContext()
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    login()
+    login({ username, password })
   }
 
   return (
@@ -25,13 +25,13 @@ export default function LoginPage() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-white text-sm mb-1">Email</label>
+            <label className="block text-white text-sm mb-1">Usuario</label>
             <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              type="username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
               className="w-full rounded-lg px-3 py-2 bg-white/20 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              placeholder="tu@email.com"
+              placeholder="johndoe"
               required
             />
           </div>

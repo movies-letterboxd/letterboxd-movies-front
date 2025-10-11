@@ -5,8 +5,11 @@ import { getAllMovies } from "../services/movieService";
 import Input from "../components/ui/Input";
 import { Link } from "react-router";
 import { CirclePlus } from "lucide-react";
+import { useAuthContext } from "../contexts/AuthContext";
+import { availablePermissions, hasPermission } from "../utils/permissions";
 
 export default function MoviesPage() {
+  const { permissions, user } = useAuthContext()
   const [movies, setMovies] = useState<Movie[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
@@ -58,7 +61,7 @@ export default function MoviesPage() {
   return (
     <main className="mx-auto max-w-7xl px-4 pb-20">
       <section className="space-y-3 py-20 text-center">
-        <p className="text-4xl font-semibold tracking-tight text-white">Bienvenido Enzo</p>
+        <p className="text-4xl font-semibold tracking-tight text-white">Bienvenido {user?.profile?.full_name}</p>
         <p className="text-white/70">Descubrí las mejores películas acá.</p>
       </section>
 
@@ -72,10 +75,12 @@ export default function MoviesPage() {
           onChange={handleSearchChange}
         />
 
-        <Link to="/new-movie" className="bg-blue-600 px-4 py-2 rounded-md text-white font-semibold hover:bg-blue-600/80 transition cursor-pointer text-center flex items-center gap-2">
-          <CirclePlus size={16} />
-          Película
-        </Link>
+        {hasPermission(permissions, availablePermissions.CREATE_MOVIE) && (
+          <Link to="/new-movie" className="bg-blue-600 px-4 py-2 rounded-md text-white font-semibold hover:bg-blue-600/80 transition cursor-pointer text-center flex items-center gap-2">
+            <CirclePlus size={16} />
+            Película
+          </Link>
+        )}
       </div>
 
       <MoviesGrid 

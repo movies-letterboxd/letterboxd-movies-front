@@ -1,23 +1,25 @@
 import axios from "axios"
-
-export const BASE_URL = 'https://movies.ufodevelopment.com';
+export const BASE_URL = 'http://localhost:8080'
 
 const apiClient = axios.create({
   baseURL: `${BASE_URL}/api`,
   headers:{
     "Content-Type": "application/json", 
   },
-});
+})
 
 apiClient.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token.trim()}`;
+    const userStorage = window.localStorage.getItem('user')
+    const user = userStorage ? JSON.parse(userStorage) : null
+    
+    if (user?.access_token) {
+      config.headers.Authorization = `Bearer ${user.access_token.trim()}`
     }
-    return config;
+
+    return config
   },
   (error) => Promise.reject(error)
-);
+)
 
-export default apiClient;
+export default apiClient
