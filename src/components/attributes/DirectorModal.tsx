@@ -152,6 +152,6 @@ function normalizeDirector(raw: any): Director {
   return {
     id: raw.id,
     nombre: raw.nombre ?? raw.name ?? "",
-    imagen: raw.imagen ?? raw.logo_url ?? raw.logo ?? null
+    imagenUrl: raw.imagen ?? raw.logo_url ?? raw.logo ?? null
   }
 }
