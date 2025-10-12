@@ -13,6 +13,8 @@ import { deleteMovieById } from "../../services/movieService"
 import toast from "react-hot-toast"
 import { EyeOff, Pencil } from "lucide-react"
 import { BASE_URL } from "../../services/apiClient"
+import { availablePermissions, hasPermission } from "../../utils/permissions"
+import { useAuthContext } from "../../contexts/AuthContext"
 
 interface Props {
   movie: Movie
@@ -21,7 +23,7 @@ interface Props {
 
 export default function MovieCard({ movie, handleDeleteMovie }: Props) {
   const navigate = useNavigate()
-  const isAdmin = true
+  const { permissions } = useAuthContext()
   const [openConfirm, setOpenConfirm] = useState(false)
   const [deleting, setDeleting] = useState(false)
 
@@ -54,29 +56,36 @@ export default function MovieCard({ movie, handleDeleteMovie }: Props) {
     }
   }
 
+  const canDelete = hasPermission(permissions, availablePermissions.DELETE_MOVIE)
+  const canEdit = hasPermission(permissions, availablePermissions.EDIT_MOVIE)
+
   return (
     <article
       onClick={handleMovieClick}
       className="group relative cursor-pointer flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-b from-white/5 to-transparent p-2 shadow-[0_8px_40px_-12px_rgba(0,0,0,0.6)] transition hover:scale-[1.01] hover:border-white/20"
       aria-label={`Película: ${movie?.titulo}`}
     >
-      {isAdmin && (
+      {(canDelete || canEdit) && (
         <div className="absolute right-2 top-2 z-20 flex items-center gap-2 p-2">
-          <button
-            type="button"
-            onClick={handleDeleteClick}
-            className="rounded-md bg-red-600/90 p-2 text-sm font-medium text-white shadow hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400"
-          >
-            <EyeOff size={16} />
-          </button>
+          {canDelete && (
+            <button
+              type="button"
+              onClick={handleDeleteClick}
+              className="rounded-md bg-red-600/90 p-2 text-sm font-medium text-white shadow hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400"
+            >
+              <EyeOff size={16} />
+            </button>
+          )}
 
-          <Link
-            to={`/movies/${movie.id}/edit`}
-            onClick={(e) => e.stopPropagation()}
-            className="rounded-md cursor-default bg-blue-600/90 p-2 text-sm font-medium text-white shadow hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
-          >
-            <Pencil size={16} />
-          </Link>
+          {canEdit && (
+            <Link
+              to={`/movies/${movie.id}/edit`}
+              onClick={(e) => e.stopPropagation()}
+              className="rounded-md cursor-default bg-blue-600/90 p-2 text-sm font-medium text-white shadow hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            >
+              <Pencil size={16} />
+            </Link>
+          )}
         </div>
       )}
 
@@ -149,7 +158,7 @@ export default function MovieCard({ movie, handleDeleteMovie }: Props) {
         description={`¿Seguro que querés desactivar del catálogo “${movie.titulo}”? No podrá verse en el sitio hasta que la vuelvas a activar.`}
         onCancel={() => setOpenConfirm(false)}
         onConfirm={handleConfirmDelete}
-        confirmText="Desactivar"        
+        confirmText="Desactivar"
       />
 
       {deleting && (
