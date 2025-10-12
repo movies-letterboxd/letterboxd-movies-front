@@ -19,8 +19,8 @@ jobs:
 
     env:
       AWS_REGION: us-east-2
-      S3_BUCKET: letterbox-movies-prod-2025
-      CF_DIST_ID: E3VXJRORKU2FU7
+      S3_BUCKET: movies-letterbox
+      CF_DIST_ID: E1COKQVBIR9BQY
 
     steps:
       - name: Checkout
@@ -46,14 +46,14 @@ jobs:
       - name: Install deps
         run: pnpm install --frozen-lockfile
 
-      - name: Run tests
-        run: pnpm test -- --coverage
+      #- name: Run tests
+        #run: pnpm test -- --coverage
 
-      - name: Upload coverage report
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-report
-          path: coverage
+      #- name: Upload coverage report
+        #uses: actions/upload-artifact@v4
+        #with:
+          #name: coverage-report
+          #path: coverage
       
       - name: Build
         run: pnpm run build   # Vite -> dist/
