@@ -125,7 +125,7 @@ export default function MovieCard({ movie, handleDeleteMovie }: Props) {
 
         <div className="flex items-center gap-2">
           <span className="text-xs text-white/50">Dirección:</span>
-          <DirectorChip nombre={movie?.director?.nombre} imagen={movie?.director?.imagen} />
+          <DirectorChip nombre={movie?.director?.nombre} imagen={movie?.director?.imagen ?? ""} />
         </div>
 
         <div className="flex flex-wrap gap-1.5">
