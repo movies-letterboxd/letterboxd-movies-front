@@ -38,7 +38,7 @@ export default function Header() {
               Películas Inactivas
             </NavLink>
           )}
-          {hasPermission(permissions, availablePermissions.CREATE_MOVIE) && hasPermission(permissions, availablePermissions.EDIT_MOVIE) && (
+          {hasPermission(permissions, availablePermissions.CREATE_MOVIE) && hasPermission(permissions, availablePermissions.EDIT_MOVIE) && hasPermission(permissions, availablePermissions.DELETE_MOVIE) && (
             <NavLink
               className={({ isActive }) => `text-[#90A1B9] hover:text-[#336ab7] hover:transition-colors font-bold uppercase ${isActive ? 'text-[#336ab7]' : ''}`}
               to="/attributes"
