@@ -13,6 +13,8 @@ import { activateMovieById, realDeleteMovieById } from "../../services/movieServ
 import toast from "react-hot-toast"
 import { Eye, Pencil, Trash2 } from "lucide-react"
 import { BASE_URL } from "../../services/apiClient"
+import { availablePermissions, hasPermission } from "../../utils/permissions"
+import { useAuthContext } from "../../contexts/AuthContext"
 
 interface Props {
   movie: Movie
@@ -21,7 +23,7 @@ interface Props {
 
 export default function MovieInactiveCard({ movie, handleDeleteMovie }: Props) {
   const navigate = useNavigate()
-  const isAdmin = true
+  const { permissions } = useAuthContext()
   const [openConfirm, setOpenConfirm] = useState(false)
   const [openActivateConfirm, setOpenActivateConfirm] = useState(false)
   const [deleting, setDeleting] = useState(false)
@@ -75,37 +77,46 @@ export default function MovieInactiveCard({ movie, handleDeleteMovie }: Props) {
     }
   }
 
+  const canEdit = hasPermission(permissions, availablePermissions.EDIT_MOVIE)
+  const canDelete = hasPermission(permissions, availablePermissions.DELETE_MOVIE)
+  
   return (
     <article
       onClick={handleMovieClick}
       className="group relative cursor-pointer flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-b from-white/5 to-transparent p-2 shadow-[0_8px_40px_-12px_rgba(0,0,0,0.6)] transition hover:scale-[1.01] hover:border-white/20"
       aria-label={`Película: ${movie?.titulo}`}
     >
-      {isAdmin && (
+      {(canEdit || canDelete) && (
         <div className="absolute right-2 top-2 z-20 flex items-center gap-2 p-2">
-          <button
-            type="button"
-            onClick={handleActivateClick}
-            className="rounded-md bg-green-600/90 p-2 text-sm font-medium text-white shadow hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400"
-          >
-            <Eye size={16} />
-          </button>
+          {canEdit && (
+            <button
+              type="button"
+              onClick={handleActivateClick}
+              className="rounded-md bg-green-600/90 p-2 text-sm font-medium text-white shadow hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400"
+            >
+              <Eye size={16} />
+            </button>
+          )}
 
-          <button
-            type="button"
-            onClick={handleDeleteClick}
-            className="rounded-md bg-red-600/90 p-2 text-sm font-medium text-white shadow hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400"
-          >
-            <Trash2 size={16} />
-          </button>
+          {canDelete && (
+            <button
+              type="button"
+              onClick={handleDeleteClick}
+              className="rounded-md bg-red-600/90 p-2 text-sm font-medium text-white shadow hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400"
+            >
+              <Trash2 size={16} />
+            </button>
+          )}
 
-          <Link
-            to={`/movies/${movie.id}/edit`}
-            onClick={(e) => e.stopPropagation()}
-            className="rounded-md bg-blue-600/90 p-2 text-sm font-medium text-white shadow hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
-          >
-            <Pencil size={16} />
-          </Link>
+          {canEdit && (
+            <Link
+              to={`/movies/${movie.id}/edit`}
+              onClick={(e) => e.stopPropagation()}
+              className="rounded-md cursor-default bg-blue-600/90 p-2 text-sm font-medium text-white shadow hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            >
+              <Pencil size={16} />
+            </Link>
+          )}
         </div>
       )}
 

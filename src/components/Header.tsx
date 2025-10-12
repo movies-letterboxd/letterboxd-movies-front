@@ -1,7 +1,15 @@
 import { Gamepad2, LogOut } from "lucide-react";
 import { NavLink } from "react-router";
+import { useAuthContext } from "../contexts/AuthContext";
+import { availablePermissions, hasPermission } from "../utils/permissions";
 
 export default function Header() {
+  const { logout, permissions } = useAuthContext()
+
+  const handleLogout = () => {
+    logout()
+  }
+
   return (
     <header className="bg-[#121C2E] py-5 px-10 sm:px-20 flex items-center justify-between sticky top-0 z-[999]">
       <div className="flex items-center gap-2">
@@ -22,25 +30,29 @@ export default function Header() {
           >
             Películas
           </NavLink>
-          <NavLink
-            className={({ isActive }) => `text-[#90A1B9] hover:text-[#336ab7] hover:transition-colors font-bold uppercase ${isActive ? 'text-[#336ab7]' : ''}`}
-            to="/movies/inactives"
-          >
-            Películas Inactivas
-          </NavLink>
-          <NavLink
-            className={({ isActive }) => `text-[#90A1B9] hover:text-[#336ab7] hover:transition-colors font-bold uppercase ${isActive ? 'text-[#336ab7]' : ''}`}
-            to="/new-movie"
-          >
-            Nueva Película
-          </NavLink>
+          {hasPermission(permissions, availablePermissions.CREATE_MOVIE) && (
+            <NavLink
+              className={({ isActive }) => `text-[#90A1B9] hover:text-[#336ab7] hover:transition-colors font-bold uppercase ${isActive ? 'text-[#336ab7]' : ''}`}
+              to="/movies/inactives"
+            >
+              Películas Inactivas
+            </NavLink>
+          )}
+          {hasPermission(permissions, availablePermissions.CREATE_MOVIE) && hasPermission(permissions, availablePermissions.EDIT_MOVIE) && hasPermission(permissions, availablePermissions.DELETE_MOVIE) && (
+            <NavLink
+              className={({ isActive }) => `text-[#90A1B9] hover:text-[#336ab7] hover:transition-colors font-bold uppercase ${isActive ? 'text-[#336ab7]' : ''}`}
+              to="/attributes"
+            >
+              Atributos
+            </NavLink>
+          )}
         </ol>
 
         <button className="bg-[#FF0035] p-3 rounded-full md:block hidden">
           <Gamepad2 size={32} />
         </button>
 
-        <button className="bg-[#16E0D4] p-[10px] rounded-xl hover:bg-[#16e0d2d1] hover:transition-colors">
+        <button onClick={handleLogout} className="bg-[#16E0D4] p-[10px] rounded-xl hover:bg-[#16e0d2d1] hover:transition-colors">
           <LogOut size={20} color="black" />
         </button>
       </div>

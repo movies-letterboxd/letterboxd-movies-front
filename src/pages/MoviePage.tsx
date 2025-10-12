@@ -7,10 +7,13 @@ import MovieSkeleton from "../components/movies/MovieSkeleton";
 import toast from "react-hot-toast";
 import ConfirmDialog from "../components/ui/ConfirmDialog";
 import { BASE_URL } from "../services/apiClient";
+import { useAuthContext } from "../contexts/AuthContext";
+import { availablePermissions, hasPermission } from "../utils/permissions";
 
 export default function MoviePage() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const { permissions } = useAuthContext()
   const [movie, setMovie] = useState<Movie | null>(null)
   const [loading, setLoading] = useState(false)
   const [openConfirm, setOpenConfirm] = useState(false)
@@ -149,7 +152,7 @@ export default function MoviePage() {
             <div className="flex items-center justify-between">
               <h1 className="text-4xl font-bold">{movie.titulo}</h1>
               <div className="flex gap-3">
-                {!movie.activa && (
+                {!movie.activa && hasPermission(permissions, availablePermissions.CREATE_MOVIE) && (
                   <button
                     type="button"
                     onClick={() => setOpenActivateConfirm(true)}
@@ -158,12 +161,18 @@ export default function MoviePage() {
                     <Eye size={16} />
                   </button>
                 )}
-                <button onClick={() => setOpenConfirm(true)} className="bg-red-600 p-2 rounded-lg hover:bg-red-600/80 transition">
-                  {movie.activa ? <EyeOff size={16} /> : <Trash2 size={16} />}
-                </button>
-                <Link to={`/movies/${movie.id}/edit`} className="bg-blue-600 p-2 rounded-lg hover:bg-blue-600/80 transition">
-                  <Pencil size={16} />
-                </Link>
+
+                {hasPermission(permissions, availablePermissions.DELETE_MOVIE) && (
+                  <button onClick={() => setOpenConfirm(true)} className="bg-red-600 p-2 rounded-lg hover:bg-red-600/80 transition">
+                    {movie.activa ? <EyeOff size={16} /> : <Trash2 size={16} />}
+                  </button>
+                )}
+
+                {hasPermission(permissions, availablePermissions.EDIT_MOVIE) && (
+                  <Link to={`/movies/${movie.id}/edit`} className="bg-blue-600 p-2 rounded-lg hover:bg-blue-600/80 transition">
+                    <Pencil size={16} />
+                  </Link>
+                )}
               </div>
             </div>
 
