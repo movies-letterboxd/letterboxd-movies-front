@@ -47,6 +47,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const validateToken = async () => {
     if (user?.access_token) {
+      const now = new Date().getTime()
+      const expiresAt = new Date(user.profile?.expiresAt || '').getTime()
+      
+      if (now > expiresAt) {
+        logout()
+        return
+      }
+
       setStatus('authenticated')
       return
     }

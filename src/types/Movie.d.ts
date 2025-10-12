@@ -15,7 +15,7 @@ export type Movie = {
 export type Director = {
   id: number
   nombre: string
-  imagen: string
+  imagen?: string
   imagenUrl?: string
 }
 
