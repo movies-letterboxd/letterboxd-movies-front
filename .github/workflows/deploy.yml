@@ -19,8 +19,8 @@ jobs:
 
     env:
       AWS_REGION: us-east-2
-      S3_BUCKET: movies-letterbox
-      CF_DIST_ID: E1COKQVBIR9BQY
+      S3_BUCKET: letterbox-movies-prod-2025
+      CF_DIST_ID: E3VXJRORKU2FU7
 
     steps:
       - name: Checkout
