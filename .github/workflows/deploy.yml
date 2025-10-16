@@ -61,7 +61,7 @@ jobs:
       - name: Configure AWS (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::277707101441:role/Movies-letterbox-Front
+          role-to-assume: arn:aws:iam::377318184937:role/Movies-letterbox-Prod
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Deploy to S3 (CLI)
