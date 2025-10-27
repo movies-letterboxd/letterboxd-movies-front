@@ -29,17 +29,9 @@ export const loginUser = async ({ username, password }: LoginUserProps) => {
 
 export const registerUser = async ({ username, password, email, name, lastName }: RegisterUserProps) => {
   try {
-    const request = await fetch('http://users-prod-alb-1703954385.us-east-1.elb.amazonaws.com/api/v1/auth/register', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ username, password, email, name, last_name: lastName })
-    })
-
-    const response = await request.json()
+    const response = await apiClient.post('/auth/register', { username, password, email, name, last_name: lastName })
     
-    if (request.status === 201) {
+    if (response.status === 201) {
       return { success: true, data: response }
     } else {
       return { success: false, error: response }
