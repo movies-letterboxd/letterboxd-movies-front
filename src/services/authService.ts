@@ -31,13 +31,13 @@ export const registerUser = async ({ username, password, email, name, lastName }
   try {
     const response = await apiClient.post('/auth/register', { username, password, email, name, last_name: lastName })
     
-    if (response.status === 201) {
-      return { success: true, data: response }
-    } else {
-      return { success: false, error: response }
-    }
+    return { success: true, data: response }
   } catch (error: any) {
-    return { success: false, error: error.message }
+    if (error.response.status === 500) {
+      return { success: false, error: { detail: 'El usuario ya existe.' }}
+    } else {
+      return { success: false, error: { detail: error.message }}
+    }
   }
 }
 
