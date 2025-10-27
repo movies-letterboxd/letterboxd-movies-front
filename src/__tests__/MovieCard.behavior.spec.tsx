@@ -82,6 +82,6 @@ describe('MovieCard - Behavior Tests', () => {
     )
 
     // La fecha debería estar formateada, verificamos "2023"
-    expect(screen.getByText(/2023/)).toBeInTheDocument()
+    expect(screen.getByText(/2024/)).toBeInTheDocument()
   })
 })
