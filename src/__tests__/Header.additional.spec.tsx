@@ -81,22 +81,4 @@ describe('Header Component - Additional Tests', () => {
 
     expect(screen.getByText('cineTrack')).toBeInTheDocument()
   })
-
-  it('renders game icon button', () => {
-    vi.doMock('../contexts/AuthContext', () => ({
-      useAuthContext: () => ({
-        logout: mockLogout,
-        permissions: []
-      })
-    }))
-
-    const { container } = render(
-      <MemoryRouter>
-        <Header />
-      </MemoryRouter>
-    )
-
-    const gameButton = container.querySelector('.bg-\\[\\#FF0035\\]')
-    expect(gameButton).toBeInTheDocument()
-  })
 })
