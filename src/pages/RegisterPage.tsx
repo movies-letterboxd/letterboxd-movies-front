@@ -6,11 +6,21 @@ import { Link } from "react-router"
 export default function LoginPage() {
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
-  const { login } = useAuthContext()
+  const [email, setEmail] = useState("")
+  const [name, setName] = useState("")
+  const [lastName, setLastName] = useState("")
+
+  const { register } = useAuthContext()
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    login({ username, password })
+    register({
+      username,
+      password,
+      email,
+      name,
+      lastName
+    })
   }
 
   return (
@@ -21,10 +31,47 @@ export default function LoginPage() {
         </h1>
 
         <p className="text-sm text-gray-300 mb-6 text-center">
-          Ingresa para crear, editar, eliminar y ver películas disponibles.
+          Creá una cuenta para crear, editar, eliminar y ver películas disponibles.
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-white text-sm mb-1">Correo electrónico</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full rounded-lg px-3 py-2 bg-white/20 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              placeholder="johndoe@hotmail.com"
+              required
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-white text-sm mb-1">Nombre</label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="w-full rounded-lg px-3 py-2 bg-white/20 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                placeholder="John"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-white text-sm mb-1">Apellido</label>
+              <input
+                type="text"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                className="w-full rounded-lg px-3 py-2 bg-white/20 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                placeholder="Doe"
+                required
+              />
+            </div>
+          </div>
+
           <div>
             <label className="block text-white text-sm mb-1">Usuario</label>
             <input
@@ -36,6 +83,7 @@ export default function LoginPage() {
               required
             />
           </div>
+
 
           <div>
             <label className="block text-white text-sm mb-1">Contraseña</label>
@@ -49,14 +97,14 @@ export default function LoginPage() {
             />
           </div>
 
-          <p className="text-center text-gray-200">¿No tienes una cuenta? <Link to="/register" className="underline">Creá una</Link></p>
+          <p className="text-center text-gray-200">Ya tienes una cuenta? <Link to="/login" className="underline">Ingresá aquí</Link></p>
 
           <button
             type="submit"
             className="w-full mt-4 flex items-center gap-2 justify-center bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 rounded-lg transition-all"
           >
             <LogIn size={16} />
-            Ingresar
+            Crear cuenta
           </button>
         </form>
       </div>

@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { decodeToken, loginUser, type LoginUserProps } from "../services/authService";
+import { decodeToken, loginUser, registerUser, type LoginUserProps, type RegisterUserProps } from "../services/authService";
 
 type UserStorage = {
   access_token: string
@@ -18,6 +18,7 @@ type AuthContextType = {
   status: 'checking' | 'authenticated' | 'not-authenticated'
   permissions: string[]
   login: (data: LoginUserProps) => Promise<void>
+  register: (data: RegisterUserProps) => Promise<void>
   logout: () => Promise<void>
 }
 
@@ -92,6 +93,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }
 
+  const register = async ({ username, password, email, name, lastName }: RegisterUserProps) => {
+    setStatus('checking')
+    const result = await registerUser({ username, password, email, name, lastName })
+
+    if (result.success) {
+      await login({ username, password })
+    } else {
+      logout()
+    }
+  }
+
   const logout = async () => {
     window.localStorage.removeItem(USER_STORAGE_KEY)
     setStatus('not-authenticated')
@@ -105,7 +117,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         status, 
         permissions, 
         logout, 
-        login 
+        login,
+        register
       }}
     >
       {children}
