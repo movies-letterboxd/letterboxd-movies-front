@@ -40,9 +40,9 @@ export const registerUser = async ({ username, password, email, name, lastName }
     const response = await request.json()
     
     if (request.status === 201) {
-      return { success: true, data: response.data }
+      return { success: true, data: response }
     } else {
-      return { success: false, error: response.statusText }
+      return { success: false, error: response }
     }
   } catch (error: any) {
     return { success: false, error: error.message }

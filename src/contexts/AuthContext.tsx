@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { decodeToken, loginUser, registerUser, type LoginUserProps, type RegisterUserProps } from "../services/authService";
+import toast from "react-hot-toast";
 
 type UserStorage = {
   access_token: string
@@ -89,6 +90,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setUser(dataToSave)
       setStatus('authenticated')
     } else {
+      toast.error('Credenciales incorrectas')
       logout()
     }
   }
@@ -100,6 +102,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     if (result.success) {
       await login({ username, password })
     } else {
+      toast.error(result?.error?.detail)
       logout()
     }
   }

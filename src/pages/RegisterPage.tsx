@@ -2,6 +2,7 @@ import { useState } from "react"
 import { useAuthContext } from "../contexts/AuthContext"
 import { LogIn } from "lucide-react"
 import { Link } from "react-router"
+import toast from "react-hot-toast"
 
 export default function LoginPage() {
   const [username, setUsername] = useState("")
@@ -14,6 +15,12 @@ export default function LoginPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+
+    if ([username, password, email, name, lastName].some(field => field.length === 0)) {
+      toast.error('Debes completar todos los campos.')
+      return
+    }
+    
     register({
       username,
       password,
