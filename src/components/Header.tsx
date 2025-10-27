@@ -48,10 +48,6 @@ export default function Header() {
           )}
         </ol>
 
-        <button className="bg-[#FF0035] p-3 rounded-full md:block hidden">
-          <Gamepad2 size={32} />
-        </button>
-
         <button onClick={handleLogout} className="bg-[#16E0D4] p-[10px] rounded-xl hover:bg-[#16e0d2d1] hover:transition-colors">
           <LogOut size={20} color="black" />
         </button>
