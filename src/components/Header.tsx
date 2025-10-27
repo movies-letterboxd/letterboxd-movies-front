@@ -1,4 +1,4 @@
-import { Gamepad2, LogOut } from "lucide-react";
+import { LogOut } from "lucide-react";
 import { NavLink } from "react-router";
 import { useAuthContext } from "../contexts/AuthContext";
 import { availablePermissions, hasPermission } from "../utils/permissions";
