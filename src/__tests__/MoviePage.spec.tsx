@@ -65,7 +65,6 @@ describe('MoviePage', () => {
         status: 'authenticated' as const,
         login: vi.fn(),
         logout: vi.fn(),
-        register: vi.fn(),
         permissions
       }}>
         <MemoryRouter initialEntries={[`/movies/${movieId}`]}>

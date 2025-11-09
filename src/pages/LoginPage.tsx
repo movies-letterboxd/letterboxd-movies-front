@@ -1,7 +1,6 @@
 import { useState } from "react"
 import { useAuthContext } from "../contexts/AuthContext"
 import { LogIn } from "lucide-react"
-import { Link } from "react-router"
 import toast from "react-hot-toast"
 
 export default function LoginPage() {
