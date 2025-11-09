@@ -56,8 +56,6 @@ export default function LoginPage() {
             />
           </div>
 
-          <p className="text-center text-gray-200">¿No tienes una cuenta? <Link to="/register" className="underline">Creá una</Link></p>
-
           <button
             type="submit"
             className="w-full mt-4 flex items-center gap-2 justify-center bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 rounded-lg transition-all"
