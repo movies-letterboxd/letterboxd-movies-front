@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { useParams, useNavigate, Link } from "react-router"
-import { Eye, EyeOff, Pencil} from "lucide-react"
+import { ArrowLeft, Eye, EyeOff, Pencil} from "lucide-react"
 import { type Movie } from "../types/Movie.d"
 import { activateMovieById, deleteMovieById, getMovieById } from "../services/movieService";
 import MovieSkeleton from "../components/movies/MovieSkeleton";
@@ -99,6 +99,10 @@ export default function MoviePage() {
         confirmText="Activar"
         loading={deleting}
       />
+
+      <Link to="/movies" className="mb-6 flex items-center gap-2 text-gray-300 hover:text-gray-200">
+        <ArrowLeft size={20} /> Volver a lista de películas
+      </Link>
 
       <div className="grid md:grid-cols-3 gap-6">
         <div className="col-span-1">
