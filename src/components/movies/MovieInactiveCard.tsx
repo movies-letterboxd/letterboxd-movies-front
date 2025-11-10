@@ -9,9 +9,9 @@ import Pill from "./Pill"
 import PlatformBadge from "./PlatformBadge"
 import { useState } from "react"
 import ConfirmDialog from "../ui/ConfirmDialog"
-import { activateMovieById, realDeleteMovieById } from "../../services/movieService"
+import { activateMovieById } from "../../services/movieService"
 import toast from "react-hot-toast"
-import { Eye, Pencil, Trash2 } from "lucide-react"
+import { Eye, Pencil } from "lucide-react"
 import { BASE_URL } from "../../services/apiClient"
 import { availablePermissions, hasPermission } from "../../utils/permissions"
 import { useAuthContext } from "../../contexts/AuthContext"
@@ -24,12 +24,11 @@ interface Props {
 export default function MovieInactiveCard({ movie, handleDeleteMovie }: Props) {
   const navigate = useNavigate()
   const { permissions } = useAuthContext()
-  const [openConfirm, setOpenConfirm] = useState(false)
   const [openActivateConfirm, setOpenActivateConfirm] = useState(false)
   const [deleting, setDeleting] = useState(false)
 
   const handleMovieClick = (e: React.MouseEvent) => {
-    if (openConfirm || deleting || openActivateConfirm) {
+    if (deleting || openActivateConfirm) {
       e.preventDefault()
       e.stopPropagation()
       return
@@ -37,30 +36,10 @@ export default function MovieInactiveCard({ movie, handleDeleteMovie }: Props) {
     navigate(`/movies/${movie.id}`)
   }
 
-  const handleDeleteClick = (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setOpenConfirm(true)
-  }
-
   const handleActivateClick = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
     setOpenActivateConfirm(true)
-  }
-
-  const handleConfirmDelete = async () => {
-    try {
-      setDeleting(true)
-      const response = await realDeleteMovieById(movie.id)
-      if (response.success) {
-        handleDeleteMovie(movie.id)
-        setOpenConfirm(false)
-        toast.success("Película eliminada con éxito.")
-      }
-    } finally {
-      setDeleting(false)
-    }
   }
 
   const handleConfirmActivate = async () => {
@@ -95,16 +74,6 @@ export default function MovieInactiveCard({ movie, handleDeleteMovie }: Props) {
               className="rounded-md bg-green-600/90 p-2 text-sm font-medium text-white shadow hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400"
             >
               <Eye size={16} />
-            </button>
-          )}
-
-          {canDelete && (
-            <button
-              type="button"
-              onClick={handleDeleteClick}
-              className="rounded-md bg-red-600/90 p-2 text-sm font-medium text-white shadow hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400"
-            >
-              <Trash2 size={16} />
             </button>
           )}
 
@@ -182,15 +151,6 @@ export default function MovieInactiveCard({ movie, handleDeleteMovie }: Props) {
       </div>
 
       <button className="absolute inset-0 -z-10" aria-hidden tabIndex={-1} />
-
-      <ConfirmDialog
-        open={openConfirm}
-        title="Eliminar película"
-        description={`¿Seguro que querés eliminar “${movie.titulo}”? Esta acción no se puede deshacer.`}
-        onCancel={() => setOpenConfirm(false)}
-        onConfirm={handleConfirmDelete}
-        loading={deleting}
-      />
 
       <ConfirmDialog
         open={openActivateConfirm}

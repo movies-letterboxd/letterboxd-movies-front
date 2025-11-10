@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react"
 import { useParams, useNavigate, Link } from "react-router"
-import { Eye, EyeOff, Pencil, Star, Trash2 } from "lucide-react"
+import { Eye, EyeOff, Pencil} from "lucide-react"
 import { type Movie } from "../types/Movie.d"
-import { activateMovieById, deleteMovieById, getMovieById, realDeleteMovieById } from "../services/movieService";
+import { activateMovieById, deleteMovieById, getMovieById } from "../services/movieService";
 import MovieSkeleton from "../components/movies/MovieSkeleton";
 import toast from "react-hot-toast";
 import ConfirmDialog from "../components/ui/ConfirmDialog";
@@ -48,19 +48,12 @@ export default function MoviePage() {
     try {
       setDeleting(true)
 
-      const response = movie.activa
-        ? await deleteMovieById(movie.id)
-        : await realDeleteMovieById(movie.id)
+      const response = await deleteMovieById(movie.id)
 
       if (response.success) {
-        if (movie.activa) {
-          toast.success("Película desactivada con éxito.")
-          setMovie({ ...movie, activa: false })
-        } else {
-          toast.success("Película eliminada con éxito.")
-          navigate("/movies")
-        }
-
+        toast.success("Película desactivada con éxito.")
+        setMovie({ ...movie, activa: false })
+       
         setOpenConfirm(false)
       }
     } catch (error) {
@@ -89,19 +82,11 @@ export default function MoviePage() {
 
       <ConfirmDialog
         open={openConfirm}
-        title={
-          movie.activa
-            ? "Desactivar película"
-            : "Eliminar película"
-        }
-        description={
-          movie.activa
-            ? `¿Seguro que querés desactivar del catálogo “${movie.titulo}”? No podrá verse en el sitio hasta que la vuelvas a activar.`
-            : `¿Seguro que querés eliminar “${movie.titulo}”? Esta acción no se puede deshacer.`
-        }
+        title={"Desactivar película"}
+        description={`¿Seguro que querés desactivar del catálogo “${movie.titulo}”? No podrá verse en el sitio hasta que la vuelvas a activar.`}
         onCancel={() => setOpenConfirm(false)}
         onConfirm={handleConfirmDelete}
-        confirmText={movie.activa ? "Desactivar" : "Eliminar"}
+        confirmText="Desactivar"
         loading={deleting}
       />
 
@@ -164,9 +149,9 @@ export default function MoviePage() {
                   </button>
                 )}
 
-                {hasPermission(permissions, availablePermissions.DELETE_MOVIE) && (
+                {movie.activa && hasPermission(permissions, availablePermissions.DELETE_MOVIE) && (
                   <button onClick={() => setOpenConfirm(true)} className="bg-red-600 p-2 rounded-lg hover:bg-red-600/80 transition">
-                    {movie.activa ? <EyeOff size={16} /> : <Trash2 size={16} />}
+                    <EyeOff size={16} />
                   </button>
                 )}
 
@@ -183,19 +168,7 @@ export default function MoviePage() {
               <span className="text-gray-200">{movie.director?.nombre}</span>
             </p>
 
-            <div className="flex items-center gap-1 mt-3">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <Star
-                  key={i}
-                  className={`w-6 h-6 ${i < (0) ? "text-green-400 fill-green-400" : "text-gray-700"
-                    }`}
-                />
-              ))}
-              <span className="ml-2 text-sm text-gray-400">{0}/5</span>
-            </div>
-
             <p className="mt-4 text-gray-200 leading-relaxed">{movie.sinopsis}</p>
-
 
             <div className="mt-6">
               <h2 className="text-xl font-semibold mb-2">Géneros</h2>
