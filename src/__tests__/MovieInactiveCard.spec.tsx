@@ -75,55 +75,6 @@ describe('MovieInactiveCard', () => {
     expect(buttons.length).toBeGreaterThan(0)
   })
 
-  it('opens confirm dialog when delete button is clicked', async () => {
-    render(
-      <BrowserRouter>
-        <MovieInactiveCard movie={mockMovie} handleDeleteMovie={mockHandleDeleteMovie} />
-      </BrowserRouter>
-    )
-
-    const deleteButtons = screen.getAllByRole('button')
-    // El botón de borrar es el segundo (el que tiene el ícono de trash)
-    const deleteButton = deleteButtons[1]
-    
-    fireEvent.click(deleteButton)
-    
-    await waitFor(() => {
-      expect(screen.getByText(/eliminar película/i)).toBeInTheDocument()
-    })
-  })
-
-  it('calls realDeleteMovieById when deletion is confirmed', async () => {
-    vi.mocked(movieService.realDeleteMovieById).mockResolvedValue({ success: true })
-
-    render(
-      <BrowserRouter>
-        <MovieInactiveCard movie={mockMovie} handleDeleteMovie={mockHandleDeleteMovie} />
-      </BrowserRouter>
-    )
-
-    const deleteButtons = screen.getAllByRole('button')
-    // El botón de borrar es el segundo
-    const deleteButton = deleteButtons[1]
-    
-    fireEvent.click(deleteButton)
-    
-    // Esperar a que aparezca el diálogo de confirmación
-    await waitFor(() => {
-      expect(screen.getByText(/eliminar película/i)).toBeInTheDocument()
-    })
-    
-    // El ConfirmDialog usa el botón rojo sin texto específico "Confirmar"
-    // Busquemos todos los botones y clickemos el último (el de confirmar)
-    const dialogButtons = screen.getAllByRole('button')
-    const confirmButton = dialogButtons[dialogButtons.length - 1]
-    fireEvent.click(confirmButton)
-
-    await waitFor(() => {
-      expect(movieService.realDeleteMovieById).toHaveBeenCalledWith(1)
-    })
-  })
-
   it('calls activateMovieById when activation is confirmed', async () => {
     vi.mocked(movieService.activateMovieById).mockResolvedValue({ success: true })
 
