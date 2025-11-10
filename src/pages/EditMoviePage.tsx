@@ -125,7 +125,7 @@ export default function EditMoviePage() {
                     apiClient.get("/generos"),
                     apiClient.get("/plataformas"),
                     apiClient.get("/personas/actores"),
-                    apiClient.get("/personas/directores"),
+                    apiClient.get("/personas/directores")
                 ]);
 
                 const genresData = (genresRes as any)?.data.data ?? [];
@@ -144,7 +144,7 @@ export default function EditMoviePage() {
                     
                     if (!res.success) {
                         navigate('/movies')
-                        toast.error('No existe esa película.')
+                        toast.error('La película no existe.')
                         return
                     }
 
