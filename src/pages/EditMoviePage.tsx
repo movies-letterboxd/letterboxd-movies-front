@@ -141,6 +141,13 @@ export default function EditMoviePage() {
 
                 if (id) {
                     const res = await getMovieById(Number(id));
+                    
+                    if (!res.success) {
+                        navigate('/movies')
+                        toast.error('No existe esa película.')
+                        return
+                    }
+
                     const data = (res as any)?.data?.data ?? res;
                     setMovie(data as Movie);
                     const mapped = movieToForm(data as Movie);
