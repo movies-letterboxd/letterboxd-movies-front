@@ -11,6 +11,7 @@ export default function GenresPage() {
   const [genres, setGenres] = useState<Genero[]>([])
   const [search, setSearch] = useState("")
   const [isLoading, setIsLoading] = useState(true)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   const [confirm, setConfirm] = useState<{ open: boolean; id: number | null; name: string }>({
     open: false,
@@ -52,6 +53,7 @@ export default function GenresPage() {
     if (id == null) return
 
     try {
+      setIsDeleting(true)
       const res = await deleteGenre(id)
       if (!res.success) throw new Error(res.error || "Error eliminando género")
       setGenres(prev => prev.filter(p => p.id !== id))
@@ -59,6 +61,7 @@ export default function GenresPage() {
     } catch (e: any) {
       toast.error(e.message ?? "Error eliminando género")
     } finally {
+      setIsDeleting(false)
       setConfirm({ open: false, id: null, name: "" })
     }
   }
@@ -76,14 +79,15 @@ export default function GenresPage() {
   const baseCell = "px-4 py-3"
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setSearch(e.target.value.toLowerCase())
+    const inputValue = e.target.value
+    setSearch(inputValue)
 
     if (e.target.value === "") {
       fetchGenres()
     } else {
       const filteredGenres = genres.filter(
         (genre) => (
-          genre.nombre.toLowerCase().includes(e.target.value.toLowerCase())
+          genre.nombre.toLowerCase().includes(inputValue.toLowerCase())
         )
       )
       
@@ -191,6 +195,7 @@ export default function GenresPage() {
         description={`¿Seguro que querés eliminar “${confirm.name}”? Esta acción no se puede deshacer.`}
         onCancel={() => setConfirm(c => ({ ...c, open: false }))}
         onConfirm={handleConfirmDelete}
+        loading={isDeleting}
         confirmText="Eliminar"
         danger
       />

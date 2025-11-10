@@ -189,6 +189,7 @@ export default function MovieInactiveCard({ movie, handleDeleteMovie }: Props) {
         description={`¿Seguro que querés eliminar “${movie.titulo}”? Esta acción no se puede deshacer.`}
         onCancel={() => setOpenConfirm(false)}
         onConfirm={handleConfirmDelete}
+        loading={deleting}
       />
 
       <ConfirmDialog
@@ -198,6 +199,7 @@ export default function MovieInactiveCard({ movie, handleDeleteMovie }: Props) {
         onCancel={() => setOpenActivateConfirm(false)}
         onConfirm={handleConfirmActivate}
         confirmText="Activar"
+        loading={deleting}
       />
 
       {deleting && (

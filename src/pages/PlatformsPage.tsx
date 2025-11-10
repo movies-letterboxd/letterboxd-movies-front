@@ -12,6 +12,7 @@ export default function PlatformsPage() {
   const [platforms, setPlatforms] = useState<Plataforma[]>([])
   const [search, setSearch] = useState("")
   const [isLoading, setIsLoading] = useState(true)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   const [confirm, setConfirm] = useState<{ open: boolean; id: number | null; name: string }>({
     open: false,
@@ -53,6 +54,7 @@ export default function PlatformsPage() {
     if (id == null) return
 
     try {
+      setIsDeleting(true)
       const res = await deletePlatform(id)
       if (!res.success) throw new Error(res.error || "Error eliminando plataforma")
       setPlatforms(prev => prev.filter(p => p.id !== id))
@@ -60,6 +62,7 @@ export default function PlatformsPage() {
     } catch (e: any) {
       toast.error(e.message ?? "Error eliminando plataforma")
     } finally {
+      setIsDeleting(false)
       setConfirm({ open: false, id: null, name: "" })
     }
   }
@@ -77,14 +80,15 @@ export default function PlatformsPage() {
   const baseCell = "px-4 py-3"
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setSearch(e.target.value.toLowerCase())
+    const inputValue = e.target.value
+    setSearch(inputValue)
 
     if (e.target.value === "") {
       fetchPlatforms()
     } else {
       const filteredPlatforms = platforms.filter(
         (platform) => (
-          platform.nombre.toLowerCase().includes(e.target.value.toLowerCase())
+          platform.nombre.toLowerCase().includes(inputValue.toLowerCase())
         )
       )
       
@@ -204,6 +208,7 @@ export default function PlatformsPage() {
         description={`¿Seguro que querés eliminar “${confirm.name}”? Esta acción no se puede deshacer.`}
         onCancel={() => setConfirm(c => ({ ...c, open: false }))}
         onConfirm={handleConfirmDelete}
+        loading={isDeleting}
         confirmText="Eliminar"
         danger
       />

@@ -46,13 +46,14 @@ export default function MoviesPage() {
   }
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setSearchTerm(e.target.value.toLowerCase());
+    const inputValue = e.target.value
+    setSearchTerm(inputValue);
 
     if (e.target.value === "") {
       fetchPeliculas();
     } else {
       const filteredMovies = movies.filter((movie) =>
-        movie.titulo.toLowerCase().includes(e.target.value.toLowerCase())
+        movie.titulo.toLowerCase().includes(inputValue.toLowerCase())
       );
       setMovies(filteredMovies);
     }

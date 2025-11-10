@@ -1,5 +1,6 @@
 import { useEffect } from "react"
 import { createPortal } from "react-dom"
+import cls from "../../utils/cls"
 
 interface Props {
   open: boolean
@@ -10,6 +11,7 @@ interface Props {
   onCancel: () => void
   onConfirm: () => void
   danger?: boolean
+  loading?: boolean
 }
 
 export default function ConfirmDialog({
@@ -21,6 +23,7 @@ export default function ConfirmDialog({
   onCancel,
   onConfirm,
   danger = true,
+  loading = false
 }: Props) {
   useEffect(() => {
     if (!open) return
@@ -52,17 +55,18 @@ export default function ConfirmDialog({
           <button
             type="button"
             onClick={onCancel}
-            className="h-10 rounded-md border border-white/15 px-4 text-white hover:bg-white/5"
+            className={cls("h-10 rounded-md border border-white/15 px-4 text-white hover:bg-white/5")}
           >
             {cancelText}
           </button>
           <button
             type="button"
             onClick={onConfirm}
-            className={`h-10 rounded-md px-4 font-medium text-white ${danger
-              ? "bg-red-600 hover:bg-red-600/90"
-              : "bg-blue-600 hover:bg-blue-600/90"
-              }`}
+            className={cls(
+              'h-10 rounded-md px-4 font-medium text-white', 
+              danger ? 'bg-red-600 hover:bg-red-600/90' : "bg-blue-600 hover:bg-blue-600/90",
+              loading ? 'opacity-90' : 'opacity-100'
+            )}
           >
             {confirmText}
           </button>

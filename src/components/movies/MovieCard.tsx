@@ -159,6 +159,7 @@ export default function MovieCard({ movie, handleDeleteMovie }: Props) {
         onCancel={() => setOpenConfirm(false)}
         onConfirm={handleConfirmDelete}
         confirmText="Desactivar"
+        loading={deleting}
       />
 
       {deleting && (

@@ -18,7 +18,7 @@ export default function MoviePage() {
   const [loading, setLoading] = useState(false)
   const [openConfirm, setOpenConfirm] = useState(false)
   const [openActivateConfirm, setOpenActivateConfirm] = useState(false)
-  const [, setDeleting] = useState(false)
+  const [deleting, setDeleting] = useState(false)
 
   const fetchPelicula = async () => {
     if (!id) return;
@@ -102,6 +102,7 @@ export default function MoviePage() {
         onCancel={() => setOpenConfirm(false)}
         onConfirm={handleConfirmDelete}
         confirmText={movie.activa ? "Desactivar" : "Eliminar"}
+        loading={deleting}
       />
 
       <ConfirmDialog
@@ -111,6 +112,7 @@ export default function MoviePage() {
         onCancel={() => setOpenActivateConfirm(false)}
         onConfirm={handleConfirmActivate}
         confirmText="Activar"
+        loading={deleting}
       />
 
       <div className="grid md:grid-cols-3 gap-6">

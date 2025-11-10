@@ -12,6 +12,7 @@ export default function DirectorsPage() {
   const [directors, setDirectors] = useState<Director[]>([])
   const [search , setSearch] = useState("")
   const [isLoading, setIsLoading] = useState(true)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   const [confirm, setConfirm] = useState<{ open: boolean; id: number | null; name: string }>({
     open: false,
@@ -53,6 +54,7 @@ export default function DirectorsPage() {
     if (id == null) return
 
     try {
+      setIsDeleting(true)
       const res = await deleteDirector(id)
       if (!res.success) throw new Error(res.error || "Error eliminando director")
       setDirectors(prev => prev.filter(d => d.id !== id))
@@ -60,6 +62,7 @@ export default function DirectorsPage() {
     } catch (e: any) {
       toast.error(e.message ?? "Error eliminando director")
     } finally {
+      setIsDeleting(false)
       setConfirm({ open: false, id: null, name: "" })
     }
   }
@@ -77,14 +80,15 @@ export default function DirectorsPage() {
   const baseCell = "px-4 py-3"
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setSearch(e.target.value.toLowerCase())
+    const inputValue = e.target.value
+    setSearch(inputValue)
 
     if (e.target.value === "") {
       fetchDirectors()
     } else {
       const filteredDirectors = directors.filter(
         (director) => (
-          director.nombre.toLowerCase().includes(e.target.value.toLowerCase())
+          director.nombre.toLowerCase().includes(inputValue.toLowerCase())
         )
       )
       
@@ -207,6 +211,7 @@ export default function DirectorsPage() {
         onCancel={() => setConfirm(c => ({ ...c, open: false }))}
         onConfirm={handleConfirmDelete}
         confirmText="Eliminar"
+        loading={isDeleting}
         danger
       />
     </>

@@ -82,6 +82,7 @@ export default function EditMoviePage() {
     const navigate = useNavigate();
 
     const [loading, setLoading] = useState(true);
+    const [editingMovie, setEditingMovie] = useState(false);
     const [movie, setMovie] = useState<Movie | null>(null);
 
     const [form, setForm] = useState({
@@ -255,6 +256,8 @@ export default function EditMoviePage() {
         e.preventDefault();
         if (!id) return;
         try {
+            setEditingMovie(true)
+
             const payload: MoviePayload = {
                 titulo: form.titulo.trim(),
                 sinopsis: form.sinopsis.trim(),
@@ -278,6 +281,8 @@ export default function EditMoviePage() {
             console.error("Error actualizando película", err);
             const msg = err?.response?.data || err?.message || "Error desconocido";
             toast.error(`No se pudo actualizar: ${msg}`);
+        } finally {
+            setEditingMovie(false)
         }
     };
 
@@ -556,10 +561,11 @@ export default function EditMoviePage() {
                 <div className="flex gap-6">
                     <button
                         type="submit"
-                        disabled={!canSubmit}
+                        disabled={!canSubmit || editingMovie}
                         className={cls(
                             "bg-green-500 flex-1 px-4 py-2 rounded-md text-white font-semibold hover:bg-green-500/80 transition",
                             !canSubmit ? "opacity-70 cursor-not-allowed" : "cursor-pointer",
+                            editingMovie ? 'opacity-90' : 'opacity-100'
                         )}
                     >
                         Guardar cambios

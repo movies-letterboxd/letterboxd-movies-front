@@ -14,6 +14,8 @@ import PersonModal from "../components/movies/PersonModal"
 export default function NewMoviePage() {
   const navigate = useNavigate()
 
+  const [creatingMovie, setCreatingMovie] = useState(false) 
+
   const [newMovieState, setNewMovieState] = useState<NewMovieForm>({
     titulo: '',
     duracionMinutos: '',
@@ -157,7 +159,10 @@ export default function NewMoviePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
     try {
+      setCreatingMovie(true)
+
       const payload = {
         titulo: newMovieState.titulo,
         sinopsis: newMovieState.sinopsis,
@@ -170,6 +175,7 @@ export default function NewMoviePage() {
       }
 
       const response = await createMovie(payload, imageInput)
+
       if (response.success) {
         toast.success("Película creada con éxito");
         setNewMovieState({
@@ -195,6 +201,8 @@ export default function NewMoviePage() {
 
     } catch (error) {
       console.error("Error creating movie", error);
+    } finally {
+      setCreatingMovie(false)
     }
   }
 
@@ -410,10 +418,11 @@ export default function NewMoviePage() {
         <div className="flex gap-6">
           <button
             type="submit"
-            disabled={!canSubmit}
+            disabled={!canSubmit || creatingMovie}
             className={cls(
               "bg-green-500 flex-1 px-4 py-2 rounded-md text-white font-semibold hover:bg-green-500/80 transition",
-              !canSubmit ? "opacity-70 cursor-not-allowed" : "cursor-pointer"
+              !canSubmit ? "opacity-70 cursor-not-allowed" : "cursor-pointer",
+              creatingMovie ? 'opacity-90' : 'opacity-100'
             )}
           >
             Guardar
