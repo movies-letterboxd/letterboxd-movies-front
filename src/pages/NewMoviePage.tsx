@@ -283,7 +283,7 @@ export default function NewMoviePage() {
                   onClick={() => setIsDirectorModalOpen(true)}
                   className="text-xs rounded-md bg-white/10 px-2 py-0.5 text-white hover:bg-white/20"
                 >
-                  Nuevo
+                  Nuevo director
                 </button>
               </div>
               <SelectWithSearch
@@ -354,7 +354,7 @@ export default function NewMoviePage() {
                       onClick={() => setIsActorModalOpen(true)}
                       className="text-xs rounded-md bg-white/10 px-2 py-1 text-white hover:bg-white/20"
                     >
-                      Nuevo
+                      Nuevo actor
                     </button>
                   </div>
                   <SelectWithSearch
