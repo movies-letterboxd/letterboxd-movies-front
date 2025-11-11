@@ -14,7 +14,7 @@ import PersonModal from "../components/movies/PersonModal"
 export default function NewMoviePage() {
   const navigate = useNavigate()
 
-  const [creatingMovie, setCreatingMovie] = useState(false) 
+  const [creatingMovie, setCreatingMovie] = useState(false)
 
   const [newMovieState, setNewMovieState] = useState<NewMovieForm>({
     titulo: '',
@@ -232,7 +232,7 @@ export default function NewMoviePage() {
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-6">
         <div className="grid grid-cols-3 gap-6 items-start">
-          <div className="col-span-2">
+          <div className="col-span-1 space-y-6">
             <label htmlFor="image" className="block text-sm font-medium text-white mb-1">Imagen</label>
             <input
               type="file"
@@ -242,6 +242,20 @@ export default function NewMoviePage() {
               onChange={handleImageChange}
               className="block w-full text-sm text-white bg-white/5 rounded-md border border-white/10 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent p-2"
             />
+
+            <div>
+              <p className="text-sm text-white/70 mb-2">Vista previa</p>
+              <div className="aspect-[2/3] w-full overflow-hidden rounded-lg bg-white/5 border border-white/10">
+                {imagePreview ? (
+                  <img src={imagePreview} alt="Poster" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full grid place-content-center text-white/40">
+                    Sin imagen
+                  </div>
+                )}
+              </div>
+            </div>
+
             {imageInput && (
               <div className="mt-2 text-sm text-white/70 flex items-center gap-3">
                 <span>Seleccionada: {imageInput.name}</span>
@@ -256,180 +270,162 @@ export default function NewMoviePage() {
             )}
           </div>
 
-          <div className="col-span-1">
-            <p className="text-sm text-white/70 mb-2">Vista previa</p>
-            <div className="aspect-[2/3] w-full overflow-hidden rounded-lg bg-white/5 border border-white/10">
-              {imagePreview ? (
-                <img src={imagePreview} alt="Poster" className="w-full h-full object-cover" />
-              ) : (
-                <div className="w-full h-full grid place-content-center text-white/40">
-                  Sin imagen
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-3 gap-6">
-          <Input name="titulo" label="Título" value={newMovieState.titulo} onChange={handleInputChange} placeholder="Título de la película" />
-          <Input name="duracionMinutos" type="number" label="Duración" value={newMovieState.duracionMinutos} onChange={handleInputChange} placeholder="Duración en minutos" />
-          <Input name="fechaEstreno" type="date" label="Fecha estreno" value={newMovieState.fechaEstreno} onChange={handleInputChange} placeholder="Fecha de estreno" />
-        </div>
-
-        <Textarea name="sinopsis" label="Sinopsis" value={newMovieState.sinopsis} onChange={handleInputChange} placeholder="Sinopsis de película" />
-
-        <div className="grid grid-cols-3 gap-6">
-          <div>
-            <div className="mb-2 flex items-end justify-between">
-              <label className="font-medium text-white">Director</label>
-              <button
-                type="button"
-                onClick={() => setIsDirectorModalOpen(true)}
-                className="text-sm rounded-md bg-white/10 px-2 py-0.5 text-white hover:bg-white/20"
-              >
-                Nuevo director
-              </button>
-            </div>
-            <SelectWithSearch
-              name="directorId"
-              value={newMovieState.directorId}
-              onChange={(option) => handleSelectChange("directorId", option)}
-              placeholder="Seleccionar director"
-              options={directorOptions}
-            />
-          </div>
-
-          <div>
-            <SelectWithSearch
-              name="generosIds"
-              label="Géneros"
-              value={null}
-              onChange={(option) => handleMultipleSelectChange("generosIds", option)}
-              placeholder="Seleccionar géneros"
-              options={generoOptions}
-            />
-            <div className="mt-2 flex flex-wrap gap-2">
-              {newMovieState.generosIds.map(id => (
-                <span key={id} className="bg-white/10 text-white px-2 py-1 rounded-md text-sm flex items-center gap-2">
-                  {getGeneroLabel(id)}
-                  <button
-                    type="button"
-                    className="size-5 p-1 flex items-center justify-center bg-red-500 rounded-full text-xs font-bold hover:bg-red-500/80"
-                    onClick={() => handleDeleteMultipleSelectItem("generosIds", id)}
-                  >
-                    x
-                  </button>
-                </span>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <SelectWithSearch
-              name="plataformasIds"
-              label="Plataformas"
-              value={null}
-              onChange={(option) => handleMultipleSelectChange("plataformasIds", option)}
-              placeholder="Seleccionar plataformas"
-              options={plataformaOptions}
-            />
-            <div className="mt-2 flex flex-wrap gap-2">
-              {newMovieState.plataformasIds.map(id => (
-                <span key={id} className="bg-white/10 text-white px-2 py-1 rounded-md text-sm flex items-center gap-2">
-                  {getPlataformaLabel(id)}
-                  <button
-                    type="button"
-                    className="size-5 p-1 flex items-center justify-center bg-red-500 rounded-full text-xs font-bold hover:bg-red-500/80"
-                    onClick={() => handleDeleteMultipleSelectItem("plataformasIds", id)}
-                  >
-                    x
-                  </button>
-                </span>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-4">
-          <div className="grid grid-cols-[1fr_auto_auto] items-end gap-6">
+          <div className="col-span-2 grid grid-cols-3 gap-6">
+            <Input name="titulo" label="Título" value={newMovieState.titulo} onChange={handleInputChange} placeholder="Título de la película" />
+            <Input name="duracionMinutos" type="number" label="Duración" value={newMovieState.duracionMinutos} onChange={handleInputChange} placeholder="Duración en minutos" />
+            <Input name="fechaEstreno" type="date" label="Fecha estreno" value={newMovieState.fechaEstreno} onChange={handleInputChange} placeholder="Fecha de estreno" />
+            <Textarea name="sinopsis" label="Sinopsis" value={newMovieState.sinopsis} onChange={handleInputChange} placeholder="Sinopsis de película" className="col-span-3 w-full" />
             <div>
               <div className="mb-2 flex items-end justify-between">
-                <label className="font-medium text-white">Elenco</label>
+                <label className="font-medium text-white">Director</label>
                 <button
                   type="button"
-                  onClick={() => setIsActorModalOpen(true)}
-                  className="text-sm rounded-md bg-white/10 px-2 py-1 text-white hover:bg-white/20"
+                  onClick={() => setIsDirectorModalOpen(true)}
+                  className="text-xs rounded-md bg-white/10 px-2 py-0.5 text-white hover:bg-white/20"
                 >
-                  Nuevo actor
+                  Nuevo
                 </button>
               </div>
               <SelectWithSearch
-                className="w-full"
-                name="elenco"
-                label=""
-                value={newCast.personaId}
-                onChange={handleElencoSelect}
-                placeholder="Seleccionar persona"
-                options={peopleOptions}
+                name="directorId"
+                value={newMovieState.directorId}
+                onChange={(option) => handleSelectChange("directorId", option)}
+                placeholder="Seleccionar director"
+                options={directorOptions}
               />
             </div>
 
-            <Input name="rol" label="Rol" value={newCast.personaje} onChange={handleElencoRoleChange} placeholder="Rol en la película" />
-
-            <button
-              type="button"
-              onClick={handleAddElenco}
-              disabled={newCast.personaId == null || newCast.personaje.trim() === ''}
-              className={cls(
-                "h-10 px-4 rounded-md text-white font-semibold transition",
-                newCast.personaId == null || newCast.personaje.trim() === ''
-                  ? "bg-blue-500/60 cursor-not-allowed"
-                  : "bg-blue-500 hover:bg-blue-500/80"
-              )}
-            >
-              Agregar
-            </button>
-          </div>
-
-          {newMovieState.elenco.length > 0 && (
-            <ul className="space-y-2">
-              {newMovieState.elenco.map((m) => (
-                <li key={m.personaId} className="flex items-center justify-between rounded-md bg-white/10 px-3 py-2">
-                  <div className="text-white">
-                    <span className="font-medium">{peopleCache[m.personaId] ?? `Persona ${m.personaId}`}</span>
-                    <span className="text-white/70">{` — ${m.personaje}`}</span>
-                    <span className="ml-2 text-white/50">{`#${m.orden}`}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
+            <div>
+              <SelectWithSearch
+                name="generosIds"
+                label="Géneros"
+                value={null}
+                onChange={(option) => handleMultipleSelectChange("generosIds", option)}
+                placeholder="Seleccionar géneros"
+                options={generoOptions}
+              />
+              <div className="mt-2 flex flex-wrap gap-2">
+                {newMovieState.generosIds.map(id => (
+                  <span key={id} className="bg-white/10 text-white px-2 py-1 rounded-md text-sm flex items-center gap-2">
+                    {getGeneroLabel(id)}
                     <button
                       type="button"
-                      onClick={() => handleRemoveElenco(m.personaId)}
-                      className="h-8 px-3 rounded-md bg-red-500 text-white text-sm hover:bg-red-500/80"
+                      className="size-5 p-1 flex items-center justify-center bg-red-500 rounded-full text-xs font-bold hover:bg-red-500/80"
+                      onClick={() => handleDeleteMultipleSelectItem("generosIds", id)}
                     >
-                      Quitar
+                      x
+                    </button>
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <SelectWithSearch
+                name="plataformasIds"
+                label="Plataformas"
+                value={null}
+                onChange={(option) => handleMultipleSelectChange("plataformasIds", option)}
+                placeholder="Seleccionar plataformas"
+                options={plataformaOptions}
+              />
+              <div className="mt-2 flex flex-wrap gap-2">
+                {newMovieState.plataformasIds.map(id => (
+                  <span key={id} className="bg-white/10 text-white px-2 py-1 rounded-md text-sm flex items-center gap-2">
+                    {getPlataformaLabel(id)}
+                    <button
+                      type="button"
+                      className="size-5 p-1 flex items-center justify-center bg-red-500 rounded-full text-xs font-bold hover:bg-red-500/80"
+                      onClick={() => handleDeleteMultipleSelectItem("plataformasIds", id)}
+                    >
+                      x
+                    </button>
+                  </span>
+                ))}
+              </div>
+            </div>
+            <div className="flex flex-col col-span-3 gap-6">
+              <div className="grid grid-cols-[1fr_auto_auto] items-end gap-6">
+                <div>
+                  <div className="mb-2 flex items-end justify-between">
+                    <label className="font-medium text-white">Elenco</label>
+                    <button
+                      type="button"
+                      onClick={() => setIsActorModalOpen(true)}
+                      className="text-xs rounded-md bg-white/10 px-2 py-1 text-white hover:bg-white/20"
+                    >
+                      Nuevo
                     </button>
                   </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
+                  <SelectWithSearch
+                    className="w-full"
+                    name="elenco"
+                    label=""
+                    value={newCast.personaId}
+                    onChange={handleElencoSelect}
+                    placeholder="Seleccionar persona"
+                    options={peopleOptions}
+                  />
+                </div>
 
-        <div className="flex gap-6">
-          <button
-            type="submit"
-            disabled={!canSubmit || creatingMovie}
-            className={cls(
-              "bg-green-500 flex-1 px-4 py-2 rounded-md text-white font-semibold hover:bg-green-500/80 transition",
-              !canSubmit ? "opacity-70 cursor-not-allowed" : "cursor-pointer",
-              creatingMovie ? 'opacity-90' : 'opacity-100'
-            )}
-          >
-            Guardar
-          </button>
-          <Link to="/movies" className="bg-red-500 flex-1 px-4 py-2 rounded-md text-white font-semibold hover:bg-red-500/80 transition cursor-pointer text-center">
-            Cancelar
-          </Link>
+                <Input name="rol" label="Rol" value={newCast.personaje} onChange={handleElencoRoleChange} placeholder="Rol en la película" />
+
+                <button
+                  type="button"
+                  onClick={handleAddElenco}
+                  disabled={newCast.personaId == null || newCast.personaje.trim() === ''}
+                  className={cls(
+                    "h-10 px-4 rounded-md text-white font-semibold transition",
+                    newCast.personaId == null || newCast.personaje.trim() === ''
+                      ? "bg-blue-500/60 cursor-not-allowed"
+                      : "bg-blue-500 hover:bg-blue-500/80"
+                  )}
+                >
+                  Agregar
+                </button>
+              </div>
+
+              {newMovieState.elenco.length > 0 && (
+                <ul className="space-y-2">
+                  {newMovieState.elenco.map((m) => (
+                    <li key={m.personaId} className="flex items-center justify-between rounded-md bg-white/10 px-3 py-2">
+                      <div className="text-white">
+                        <span className="font-medium">{peopleCache[m.personaId] ?? `Persona ${m.personaId}`}</span>
+                        <span className="text-white/70">{` — ${m.personaje}`}</span>
+                        <span className="ml-2 text-white/50">{`#${m.orden}`}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveElenco(m.personaId)}
+                          className="h-8 px-3 rounded-md bg-red-500 text-white text-sm hover:bg-red-500/80"
+                        >
+                          Quitar
+                        </button>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
+
+          <div className="flex gap-6 items-center justify-center col-span-3">
+            <button
+              type="submit"
+              disabled={!canSubmit || creatingMovie}
+              className={cls(
+                "bg-green-500 flex-1 px-4 py-2 rounded-md text-white font-semibold hover:bg-green-500/80 transition",
+                !canSubmit ? "opacity-70 cursor-not-allowed" : "cursor-pointer",
+                creatingMovie ? 'opacity-90' : 'opacity-100'
+              )}
+            >
+              Guardar
+            </button>
+            <Link to="/movies" className="bg-red-500 flex-1 px-4 py-2 rounded-md text-white font-semibold hover:bg-red-500/80 transition cursor-pointer text-center">
+              Cancelar
+            </Link>
+          </div>
         </div>
       </form>
 

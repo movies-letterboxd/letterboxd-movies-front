@@ -113,7 +113,7 @@ export default function MoviePage() {
             onError={(e) => {
               (e.currentTarget as HTMLImageElement).src = "https://placehold.co/500x750?text=Poster"
             }}
-            className="w-full h-auto rounded-lg shadow-lg"
+            className="w-full h-auto rounded-lg shadow-lg aspect-[2/3] object-cover"
           />
 
           <div className="mt-4">
