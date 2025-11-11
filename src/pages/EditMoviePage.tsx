@@ -355,6 +355,7 @@ export default function EditMoviePage() {
                             <div className="mt-2 text-sm text-white/70 flex items-center gap-3">
                                 <span>Seleccionada: {imageInput.name}</span>
                                 <button
+                                    data-testid="clear-image"
                                     type="button"
                                     className="px-2 py-1 rounded bg-white/10 hover:bg-white/20"
                                     onClick={() => {

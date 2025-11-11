@@ -246,7 +246,7 @@ describe('EditMoviePage', () => {
 
     // Find the clear button by its text, not by "Quitar" which is for cast members
     const clearButtons = screen.getAllByRole('button', { name: /Quitar/i })
-    const clearButton = clearButtons.find(btn => btn.closest('[class*="col-span-2"]'))
+    const clearButton = clearButtons.find(btn => btn.dataset.testid === 'clear-image')
     
     if (clearButton) {
       await user.click(clearButton)
