@@ -410,7 +410,7 @@ export default function EditMoviePage() {
                                 <button
                                     type="button"
                                     onClick={() => setIsDirectorModalOpen(true)}
-                                    className="text-sm rounded-md bg-white/10 px-2 py-0.5 text-white hover:bg-white/20"
+                                    className="text-xs rounded-md bg-white/10 px-2 py-0.5 text-white hover:bg-white/20"
                                 >
                                     Nuevo director
                                 </button>
@@ -489,7 +489,7 @@ export default function EditMoviePage() {
                                         <button
                                             type="button"
                                             onClick={() => setIsActorModalOpen(true)}
-                                            className="text-sm rounded-md bg-white/10 px-2 py-1 text-white hover:bg-white/20"
+                                            className="text-xs rounded-md bg-white/10 px-2 py-1 text-white hover:bg-white/20"
                                         >
                                             Nuevo actor
                                         </button>
